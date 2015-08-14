@@ -1,0 +1,57 @@
+/**
+ * Navigation Module Style Sheet for Phire CMS 2
+ */
+
+#navigation-form {
+    margin: 10px auto 10px auto;
+    padding: 15px 0 15px 0;
+    width: 100%;
+    min-height: 460px;
+    border-top: solid 1px #ccc;
+}
+
+#navigation-form > dl:first-child {
+    margin: 0 0 0 20px;
+    padding: 0 0 0 20px;
+    width: 160px;
+    border-left: solid 1px #ccc;
+    float: right;
+    min-height: 525px;
+    height: 100%;
+}
+
+#navigation-form > dl:first-child > dt {
+    width: 100%;
+}
+
+#navigation-form > dl:first-child > dt {
+    margin: 0 0 5px 0;
+    border-bottom: dotted 1px #aaa;
+}
+
+#navigation-form-field-group-1 > dd:first-child {
+    width: 160px;
+}
+
+#navigation-form-field-group-2 {
+    width: calc(100% - 220px);
+}
+
+#navigation-form-field-group-2 > dt, #navigation-form-field-group-2 > dd {
+    width: 98%;
+    padding-left: 4px;
+}
+
+.navigation-nav-icon {
+    background-image: url(../img/navigation-icon-sm.png);
+    background-position: 8px center;
+    background-repeat: no-repeat;
+}
+
+.navigation-header {
+    margin: 10px 0 10px 0;
+    padding: 10px 0 10px 40px;
+    background-image: url(../img/navigation-icon-lg.png);
+    background-position: left center;
+    background-repeat: no-repeat;
+}

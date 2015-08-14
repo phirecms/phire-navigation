@@ -29,7 +29,7 @@
     border-bottom: dotted 1px #aaa;
 }
 
-#navigation-form-field-group-1 > dd:first-child {
+#navigation-form-field-group-1 > dd:first-child, #create_nav_from {
     width: 160px;
 }
 
@@ -40,6 +40,15 @@
 #navigation-form-field-group-2 > dt, #navigation-form-field-group-2 > dd {
     width: 98%;
     padding-left: 4px;
+}
+
+#navigation-form-field-group-3 > dt, #navigation-form-field-group-3 > dd {
+    padding-left: 4px;
+}
+
+
+#navigation-form-field-group-3 > dd {
+    margin-right: 10px;
 }
 
 .navigation-nav-icon {

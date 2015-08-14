@@ -3,16 +3,16 @@
  */
 
 jax(document).ready(function(){
-    if (jax('#navigation-form')[0] != undefined) {
+    if (jax('#navigations-form')[0] != undefined) {
         jax('#checkall').click(function(){
             if (this.checked) {
-                jax('#navigation-form').checkAll(this.value);
+                jax('#navigations-form').checkAll(this.value);
             } else {
-                jax('#navigation-form').uncheckAll(this.value);
+                jax('#navigations-form').uncheckAll(this.value);
             }
         });
-        jax('#navigation-form').submit(function(){
-            return jax('#navigation-form').checkValidate('checkbox', true);
+        jax('#navigations-form').submit(function(){
+            return jax('#navigations-form').checkValidate('checkbox', true);
         });
     }
 });

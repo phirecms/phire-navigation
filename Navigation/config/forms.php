@@ -10,6 +10,21 @@ return [
                     'class'  => 'save-btn wide'
                 ]
             ],
+            'create_nav_from' => [
+                'type'  => 'select',
+                'label' => 'Create From',
+                'value' => [
+                    '----' => '-----'
+                ]
+            ],
+            'indent' => [
+                'type'       => 'text',
+                'label'      => 'Indent',
+                'attributes' => [
+                    'size'  => 2,
+                    'value' => 4
+                ]
+            ],
             'id' => [
                 'type'  => 'hidden',
                 'value' => 0
@@ -23,6 +38,95 @@ return [
                 'attributes' => [
                     'size'   => 60,
                     'style'  => 'width: 99.5%'
+                ]
+            ]
+        ],
+        [
+            'top_node' => [
+                'type'       => 'text',
+                'label'      => '&nbsp;',
+                'attributes' => [
+                    'size'        => 15,
+                    'placeholder' => 'Top Node'
+                ]
+            ],
+            'top_id' => [
+                'type'       => 'text',
+                'attributes' => [
+                    'size'        => 15,
+                    'placeholder' => 'ID'
+                ]
+            ],
+            'top_class' => [
+                'type'       => 'text',
+                'attributes' => [
+                    'size'        => 15,
+                    'placeholder' => 'Class'
+                ]
+            ],
+            'top_attributes' => [
+                'type'       => 'text',
+                'attributes' => [
+                    'size'        => 40,
+                    'placeholder' => 'Attributes'
+                ]
+            ],
+            'parent_node' => [
+                'type'       => 'text',
+                'label'      => '&nbsp;',
+                'attributes' => [
+                    'size'        => 15,
+                    'placeholder' => 'Parent Node'
+                ]
+            ],
+            'parent_id' => [
+                'type'       => 'text',
+                'attributes' => [
+                    'size'        => 15,
+                    'placeholder' => 'ID'
+                ]
+            ],
+            'parent_class' => [
+                'type'       => 'text',
+                'attributes' => [
+                    'size'        => 15,
+                    'placeholder' => 'Class'
+                ]
+            ],
+            'parent_attributes' => [
+                'type'       => 'text',
+                'attributes' => [
+                    'size'        => 40,
+                    'placeholder' => 'Attributes'
+                ]
+            ],
+            'child_node' => [
+                'type'       => 'text',
+                'label'      => '&nbsp;',
+                'attributes' => [
+                    'size'        => 15,
+                    'placeholder' => 'Child Node'
+                ]
+            ],
+            'child_id' => [
+                'type'       => 'text',
+                'attributes' => [
+                    'size'        => 15,
+                    'placeholder' => 'ID'
+                ]
+            ],
+            'child_class' => [
+                'type'       => 'text',
+                'attributes' => [
+                    'size'        => 15,
+                    'placeholder' => 'Class'
+                ]
+            ],
+            'child_attributes' => [
+                'type'       => 'text',
+                'attributes' => [
+                    'size'        => 40,
+                    'placeholder' => 'Attributes'
                 ]
             ]
         ]

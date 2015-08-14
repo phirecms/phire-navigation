@@ -1,0 +1,9 @@
+<?php include $phireHeader; ?>
+    <h1 class="navigation-header"><?=$title; ?> : <span id="title-span"><?=$navigation_title; ?></span></h1>
+    <nav id="sub-nav">
+<?php if ($acl->isAllowed($user->role, 'navigation', 'add')): ?>
+        <nav><a href="<?=$phireUri; ?>/navigation/add">+ Add</a></nav>
+<?php endif; ?>
+        <nav><a href="<?=$phireUri; ?>/navigation">Back</a></nav>
+    </nav>
+<?php include $phireFooter; ?>

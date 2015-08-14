@@ -7,12 +7,13 @@
     </nav>
 <?php endif; ?>
 <?php if ($acl->isAllowed($user->role, 'navigation', 'remove')): ?>
-    <form id="navigation-form" action="<?=$phireUri . '/navigation/remove'; ?>" method="post">
+    <form id="navigations-form" action="<?=$phireUri . '/navigation/remove'; ?>" method="post">
 <?php endif; ?>
         <table class="data-table" cellpadding="0" cellspacing="0" border="0">
             <tr>
                 <th><a href="<?=$phireUri . '/navigation?sort=id';?>">#</a></th>
                 <th><a href="<?=$phireUri . '/navigation?sort=title';?>">Title</a></th>
+                <th>Manage</th>
                 <th class="text-center"><?php if ($acl->isAllowed($user->role, 'navigation', 'edit')): ?>Edit<?php else: ?>&nbsp;<?php endif; ?></th>
                 <th class="text-center"><?php if ($acl->isAllowed($user->role, 'navigation', 'remove')): ?><input type="checkbox" name="checkall" id="checkall" value="rm_navigation" /><?php else: ?>&nbsp;<?php endif; ?></th>
             </tr>
@@ -21,6 +22,7 @@
             <tr>
                 <td><?=$nav->id; ?></td>
                 <td><?=$nav->title; ?></td>
+                <td><?php if ($acl->isAllowed($user->role, 'navigation', 'manage')): ?>[ <a class="normal-link" href="<?=$phireUri . '/navigation/manage/' . $nav->id; ?>">Manage</a> ]<?php else: ?>&nbsp;<?php endif; ?></td>
                 <td><?php if ($acl->isAllowed($user->role, 'navigation', 'edit')): ?><a class="edit-link" href="<?=$phireUri . '/navigation/edit/' . $nav->id; ?>">Edit</a><?php else: ?>&nbsp;<?php endif; ?></td>
                 <td class="text-center"><?php if ($acl->isAllowed($user->role, 'navigation', 'remove')): ?><input type="checkbox" name="rm_navigation[]" id="rm_navigation<?=$i++; ?>" value="<?=$nav->id; ?>" /><?php else: ?>&nbsp;<?php endif; ?></td>
             </tr>
@@ -36,6 +38,6 @@
         <nav><a href="<?=$phireUri; ?>/navigation/add">+ Add</a></nav>
     </nav>
 <?php endif; ?>
-    <p>There are currently no navigation.</p>
+    <p>There are currently no navigation menus.</p>
 <?php endif; ?>
 <?php include $phireFooter; ?>

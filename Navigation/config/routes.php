@@ -26,6 +26,14 @@ return [
                 'permission' => 'edit'
             ]
         ],
+        '/navigation/manage/:id' => [
+            'controller' => 'Navigation\Controller\IndexController',
+            'action'     => 'manage',
+            'acl'        => [
+                'resource'   => 'navigation',
+                'permission' => 'manage'
+            ]
+        ],
         '/navigation/remove[/]' => [
             'controller' => 'Navigation\Controller\IndexController',
             'action'     => 'remove',

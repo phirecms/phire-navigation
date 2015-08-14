@@ -37,6 +37,13 @@ class IndexController extends AbstractController
 
         $fields = $this->application->config()['forms']['Navigation\Form\Navigation'];
 
+        if ($this->application->isRegistered('Content')) {
+            $contentTypes = \Content\Table\ContentTypes::findAll(null, ['order' => 'order ASC']);
+            foreach ($contentTypes->rows() as $contentType) {
+                $fields[0]['create_nav_from']['value'][$contentType->id] = $contentType->name;
+            }
+        }
+
         $this->view->form = new Form\Navigation($fields);
 
         if ($this->request->isPost()) {
@@ -78,7 +85,14 @@ class IndexController extends AbstractController
 
         $fields = $this->application->config()['forms']['Navigation\Form\Navigation'];
 
+        if ($this->application->isRegistered('Content')) {
+            $contentTypes = \Content\Table\ContentTypes::findAll(null, ['order' => 'order ASC']);
+            foreach ($contentTypes->rows() as $contentType) {
+                $fields[0]['create_nav_from']['value'][$contentType->id] = $contentType->name;
+            }
+        }
 
+        $fields[1]['title']['attributes']['onkeyup'] = 'phire.changeTitle(this.value);';
         $this->view->form = new Form\Navigation($fields);
         $this->view->form->addFilter('htmlentities', [ENT_QUOTES, 'UTF-8'])
              ->setFieldValues($navigation->toArray());
@@ -97,6 +111,28 @@ class IndexController extends AbstractController
                 $this->redirect(BASE_PATH . APP_URI . '/navigation/edit/'. $navigation->id . '?saved=' . time());
             }
         }
+
+        $this->send();
+    }
+
+    /**
+     * Manage action method
+     *
+     * @param  int $id
+     * @return void
+     */
+    public function manage($id)
+    {
+        $navigation = new Model\Navigation();
+        $navigation->getById($id);
+
+        if (!isset($navigation->id)) {
+            $this->redirect(BASE_PATH . APP_URI . '/navigation');
+        }
+
+        $this->prepareView('navigation/manage.phtml');
+        $this->view->title            = 'Navigation : Manage';
+        $this->view->navigation_title = $navigation->title;
 
         $this->send();
     }

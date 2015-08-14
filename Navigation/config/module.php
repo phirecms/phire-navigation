@@ -31,7 +31,7 @@ return [
         'events' => [
             [
                 'name'     => 'app.route.pre',
-                'action'   => 'Navigation\Event\Category::bootstrap',
+                'action'   => 'Navigation\Event\Navigation::bootstrap',
                 'priority' => 1000
             ]
         ]

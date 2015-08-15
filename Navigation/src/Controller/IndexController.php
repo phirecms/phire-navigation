@@ -133,6 +133,8 @@ class IndexController extends AbstractController
         $this->prepareView('navigation/manage.phtml');
         $this->view->title            = 'Navigation : Manage';
         $this->view->navigation_title = $navigation->title;
+        $this->view->id               = $navigation->id;
+        $this->view->tree             = $navigation->tree;
 
         $this->send();
     }

@@ -31,7 +31,8 @@ class Navigation extends AbstractModel
     {
         $navigation = Table\Navigation::findById($id);
         if (isset($navigation->id)) {
-            $data = $navigation->getColumns();
+            $data         = $navigation->getColumns();
+            $data['tree'] = (null !== $data['tree']) ? unserialize($data['tree']) : [];
             $this->data = array_merge($this->data, $data);
         }
     }
@@ -154,15 +155,15 @@ class Navigation extends AbstractModel
         $tree = [];
 
         $content    = new \Content\Model\Content(['tid' => $id]);
-        $contentAry = $content->getAll('order');
+        $contentAry = $content->getAll();
 
         foreach ($contentAry as $c) {
             $branch = [
+                'id'       => $c->id,
                 'name'     => $c->title,
                 'href'     => $c->uri,
                 'children' => $this->getNavChildren($c)
             ];
-
             $roles = unserialize($c->roles);
             if (count($roles) > 0) {
                 $branch['acl'] = [];
@@ -189,6 +190,7 @@ class Navigation extends AbstractModel
         if ($child->hasRows()) {
             foreach ($child->rows() as $c) {
                 $branch = [
+                    'id'       => $c->id,
                     'name'     => $c->title,
                     'href'     => $c->uri,
                     'children' => $this->getNavChildren($c, ($depth + 1))
@@ -198,7 +200,6 @@ class Navigation extends AbstractModel
                 if (count($roles) > 0) {
                     $branch['acl'] = [];
                 }
-
                 $children[]  = $branch;
             }
         }

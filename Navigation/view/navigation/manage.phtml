@@ -1,3 +1,4 @@
+<?php include __DIR__ . '/functions.php'; ?>
 <?php include $phireHeader; ?>
     <h1 class="navigation-header"><?=$title; ?> : <span id="title-span"><?=$navigation_title; ?></span></h1>
     <nav id="sub-nav">
@@ -6,4 +7,33 @@
 <?php endif; ?>
         <nav><a href="<?=$phireUri; ?>/navigation">Back</a></nav>
     </nav>
+    <form id="navigations-form" action="<?=$phireUri . '/navigation/manage/' . $id; ?>" method="post">
+        <div id="nav-manage-header">
+            <select name="nav_to_add_to">
+                <option value="----">[ Add To ]</option>
+            </select>
+            <select name="nav_to_add_from">
+                <option value="----">[ Add From ]</option>
+            </select>
+            <input type="text" name="nav_to_add_href" id="nav_to_add_href" value="" size="30" placeholder="Link" />
+            <input type="text" name="nav_to_add_title" id="nav_to_add_title" value="" size="30" placeholder="Title" />
+            <select name="nav_to_add_target">
+                <option value="0">[ Target ]</option>
+                <option value="_blank">New Window</option>
+            </select>
+        </div>
+        <div id="nav-tree">
+<?php if (count($tree) > 0): ?>
+<?php printNavTree($tree); ?>
+<?php else: ?>
+            <p>There is currently nothing assigned to this navigation object.</p>
+<?php endif; ?>
+        </div>
+<?php if ($acl->isAllowed($user->role, 'navigation', 'remove')): ?>
+        <div id="nav-manage-footer">
+            <input type="submit" name="submit" class="process-btn" value="Update" />
+            <input type="hidden" name="id" id="id" value="<?=$id; ?>" />
+        </div>
+    </form>
+<?php endif; ?>
 <?php include $phireFooter; ?>

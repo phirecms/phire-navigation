@@ -17,6 +17,20 @@ return [
                     '----' => '-----'
                 ]
             ],
+            'on_class' => [
+                'type'       => 'text',
+                'label'      => 'On Class',
+                'attributes' => [
+                    'size'  => 17
+                ]
+            ],
+            'off_class' => [
+                'type'       => 'text',
+                'label'      => 'Off Class',
+                'attributes' => [
+                    'size'  => 17
+                ]
+            ],
             'indent' => [
                 'type'       => 'text',
                 'label'      => 'Indent',

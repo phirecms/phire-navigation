@@ -7,20 +7,49 @@
 <?php endif; ?>
         <nav><a href="<?=$phireUri; ?>/navigation">Back</a></nav>
     </nav>
-    <form id="navigations-form" action="<?=$phireUri . '/navigation/manage/' . $id; ?>" method="post">
+    <form id="navigation-manage-form" action="<?=$phireUri . '/navigation/manage/' . $id; ?>" method="post">
         <div id="nav-manage-header">
-            <select name="nav_to_add_to">
-                <option value="----">[ Add To ]</option>
-            </select>
-            <select name="nav_to_add_from">
-                <option value="----">[ Add From ]</option>
-            </select>
-            <input type="text" name="nav_to_add_href" id="nav_to_add_href" value="" size="30" placeholder="Link" />
-            <input type="text" name="nav_to_add_title" id="nav_to_add_title" value="" size="30" placeholder="Title" />
-            <select name="nav_to_add_target">
-                <option value="0">[ Target ]</option>
-                <option value="_blank">New Window</option>
-            </select>
+            <div>
+                <label for="nav_title">Add New Item</label>
+                <input type="text" name="nav_title" id="nav_title" value="" size="60" placeholder="Title" />
+                <input type="text" name="nav_href" id="nav_href" value="" size="50" placeholder="Link" />
+                <input type="hidden" name="nav_id" id="nav_id" value="" />
+                <input type="hidden" name="nav_type" id="nav_type" value="" />
+            </div>
+            <div>
+                <select name="nav_from" id="nav_from" onchange="phire.changeNavItem();">
+                    <option value="----">[ Add Item From ]</option>
+<?php foreach ($selectFrom['content'] as $type => $content): ?>
+                    <optgroup label="<?=$type; ?>">
+<?php foreach ($content as $c): ?>
+                        <option value="<?=$c['id'];?>|content|<?=BASE_PATH . $c['uri']; ?>|<?=$c['title']; ?>"><?=str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', $c['depth']) . (($c['depth'] > 0) ? '&rarr; ' : '') . $c['title']; ?></option>
+<?php endforeach; ?>
+                    </optgroup>
+<?php endforeach; ?>
+                    <optgroup label="Categories">
+<?php foreach ($selectFrom['categories'] as $c): ?>
+                        <option value="<?=$c['id'];?>|category|<?=BASE_PATH . '/category' . $c['uri']; ?>|<?=$c['title']; ?>"><?=str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', $c['depth']) . (($c['depth'] > 0) ? '&rarr; ' : '') . $c['title']; ?></option>
+<?php endforeach; ?>
+                    </optgroup>
+                </select>
+                <select name="nav_action">
+                    <option value="append">[ Append To ]</option>
+                    <option value="prepend">[ Prepend To ]</option>
+                </select>
+                <select name="nav_action_object">
+                    <option value="----">----</option>
+<?php if (count($tree) > 0): ?>
+<?php printNavOptions($tree); ?>
+<?php endif; ?>
+                </select>
+                <select name="nav_target">
+                    <option value="----">[ Target ]</option>
+                    <option value="_blank">New</option>
+                    <option value="_parent">Parent</option>
+                    <option value="_top">Top</option>
+                    <option value="false">False</option>
+                </select>
+            </div>
         </div>
         <div id="nav-tree">
 <?php if (count($tree) > 0): ?>
@@ -31,7 +60,7 @@
         </div>
 <?php if ($acl->isAllowed($user->role, 'navigation', 'remove')): ?>
         <div id="nav-manage-footer">
-            <input type="submit" name="submit" class="process-btn" value="Update" />
+            <input type="submit" name="submit" class="save-btn" style="width: 240px;" value="Save" />
             <input type="hidden" name="id" id="id" value="<?=$id; ?>" />
         </div>
     </form>

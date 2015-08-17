@@ -30,8 +30,8 @@ return [
         ],
         'events' => [
             [
-                'name'     => 'app.route.pre',
-                'action'   => 'Navigation\Event\Navigation::bootstrap',
+                'name'     => 'app.send',
+                'action'   => 'Navigation\Event\Navigation::getNavigation',
                 'priority' => 1000
             ]
         ]

@@ -44,6 +44,10 @@ class IndexController extends AbstractController
             }
         }
 
+        if ($this->application->isRegistered('Categories')) {
+            $fields[0]['create_nav_from']['value']['categories'] = 'Categories';
+        }
+
         $this->view->form = new Form\Navigation($fields);
 
         if ($this->request->isPost()) {
@@ -92,6 +96,10 @@ class IndexController extends AbstractController
             }
         }
 
+        if ($this->application->isRegistered('Categories')) {
+            $fields[0]['create_nav_from']['value']['categories'] = 'Categories';
+        }
+
         $fields[1]['title']['attributes']['onkeyup'] = 'phire.changeTitle(this.value);';
         $this->view->form = new Form\Navigation($fields);
         $this->view->form->addFilter('htmlentities', [ENT_QUOTES, 'UTF-8'])
@@ -130,13 +138,21 @@ class IndexController extends AbstractController
             $this->redirect(BASE_PATH . APP_URI . '/navigation');
         }
 
-        $this->prepareView('navigation/manage.phtml');
-        $this->view->title            = 'Navigation : Manage';
-        $this->view->navigation_title = $navigation->title;
-        $this->view->id               = $navigation->id;
-        $this->view->tree             = $navigation->tree;
+        if ($this->request->isPost()) {
+            $navigation->saveTree($this->request->getPost());
+            $this->redirect(BASE_PATH . APP_URI . '/navigation/manage/'. $navigation->id . '?saved=' . time());
+        } else {
+            $this->prepareView('navigation/manage.phtml');
+            $this->view->title            = 'Navigation : Manage';
+            $this->view->navigation_title = $navigation->title;
+            $this->view->id               = $navigation->id;
+            $this->view->tree             = $navigation->tree;
+            $this->view->selectFrom       = $navigation->getSelectFrom(
+                $this->application->isRegistered('Content'), $this->application->isRegistered('Categories')
+            );
 
-        $this->send();
+            $this->send();
+        }
     }
 
     /**

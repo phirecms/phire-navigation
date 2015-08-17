@@ -38,6 +38,38 @@ class Navigation extends AbstractModel
     }
 
     /**
+     * Get select from options from the Content and Categories
+     *
+     * @param boolean $contentLoaded
+     * @param boolean $categoriesLoaded
+     * @return array
+     */
+    public function getSelectFrom($contentLoaded = false, $categoriesLoaded = false)
+    {
+        $options = [
+            'content'    => [],
+            'categories' => []
+        ];
+
+        if ($contentLoaded) {
+            $types = \Content\Table\ContentTypes::findAll();
+            foreach ($types->rows() as $type) {
+                $content = new \Content\Model\Content(['tid' => $type->id]);
+                $content->getAll();
+                $options['content'][$type->name] = $content->getFlatMap();
+            }
+        }
+
+        if ($categoriesLoaded) {
+            $categories = new \Categories\Model\Category();
+            $categories->getAll();
+            $options['categories'] = $categories->getFlatMap();
+        }
+
+        return $options;
+    }
+
+    /**
      * Save new navigation
      *
      * @param  array $fields
@@ -106,6 +138,23 @@ class Navigation extends AbstractModel
     }
 
     /**
+     * Save the new navigation tree
+     *
+     * @param  array $post
+     * @return void
+     */
+    public function saveTree(array $post)
+    {
+        $navigation = Table\Navigation::findById((int)$post['id']);
+        if (isset($navigation->id)) {
+            $currentTree      = (null !== $navigation->tree) ? unserialize($navigation->tree) : [];
+            $navigation->tree = $this->modifyTree($currentTree, $post);
+            $navigation->save();
+            $this->data = array_merge($this->data, $navigation->getColumns());
+        }
+    }
+
+    /**
      * Remove a navigation
      *
      * @param  array $fields
@@ -154,22 +203,37 @@ class Navigation extends AbstractModel
     {
         $tree = [];
 
-        $content    = new \Content\Model\Content(['tid' => $id]);
-        $contentAry = $content->getAll();
+        if ($id == 'categories') {
+            $category   = new \Categories\Model\Category();
+            $contentAry = $category->getAll();
+            $cat        = true;
+        } else {
+            $content    = new \Content\Model\Content(['tid' => $id]);
+            $contentAry = $content->getAll();
+            $cat        = false;
+        }
+
 
         foreach ($contentAry as $c) {
             $branch = [
                 'id'       => $c->id,
+                'type'     => ($cat) ? 'category' : 'content',
                 'name'     => $c->title,
                 'href'     => $c->uri,
-                'children' => $this->getNavChildren($c)
+                'children' => ((isset($c->status) && $c->status == 1) || !isset($c->status)) ?
+                    $this->getNavChildren($c, 0, $cat) : []
             ];
-            $roles = unserialize($c->roles);
-            if (count($roles) > 0) {
-                $branch['acl'] = [];
+
+            if (isset($c->roles)) {
+                $roles = unserialize($c->roles);
+                if (count($roles) > 0) {
+                    $branch['acl'] = [];
+                }
             }
 
-            $tree[] = $branch;
+            if ((isset($c->status) && $c->status == 1) || !isset($c->status)) {
+                $tree[] = $branch;
+            }
         }
 
         return serialize($tree);
@@ -180,31 +244,128 @@ class Navigation extends AbstractModel
      *
      * @param  \ArrayObject|array $content
      * @param  int                $depth
+     * @param  boolean            $cat
      * @return array
      */
-    protected function getNavChildren($content, $depth = 0)
+    protected function getNavChildren($content, $depth = 0, $cat = false)
     {
         $children = [];
-        $child    = \Content\Table\Content::findBy(['parent_id' => $content->id], null, ['order' => 'order ASC']);
+        $child    = ($cat) ?
+            \Categories\Table\Categories::findBy(['parent_id' => $content->id], null, ['order' => 'order ASC']) :
+            \Content\Table\Content::findBy(['parent_id' => $content->id], null, ['order' => 'order ASC']);
 
         if ($child->hasRows()) {
             foreach ($child->rows() as $c) {
                 $branch = [
                     'id'       => $c->id,
+                    'type'     => ($cat) ? 'category' : 'content',
                     'name'     => $c->title,
                     'href'     => $c->uri,
-                    'children' => $this->getNavChildren($c, ($depth + 1))
+                    'children' => ((isset($c->status) && $c->status == 1) || !isset($c->status)) ?
+                        $this->getNavChildren($c, ($depth + 1)) : []
                 ];
 
-                $roles = unserialize($c->roles);
-                if (count($roles) > 0) {
-                    $branch['acl'] = [];
+                if (isset($c->roles)) {
+                    $roles = unserialize($c->roles);
+                    if (count($roles) > 0) {
+                        $branch['acl'] = [];
+                    }
                 }
-                $children[]  = $branch;
+
+                if ((isset($c->status) && $c->status == 1) || !isset($c->status)) {
+                    $children[] = $branch;
+                }
             }
         }
 
         return $children;
+    }
+
+    /**
+     * Modify nav tree
+     *
+     * @param  array $currentTree
+     * @param  array $post
+     * @return mixed
+     */
+    protected function modifyTree(array $currentTree, array $post)
+    {
+        // Add nav items
+        if (($post['nav_title'] != '') && ($post['nav_href'] != '')) {
+            if ($post['nav_action_object'] != '----') {
+                $objectAry = explode('_', $post['nav_action_object']);
+                $branch    = $objectAry[1];
+                $depth     = $objectAry[3];
+
+                $node = &$currentTree[$branch];
+                for ($i = 0; $i < $depth; $i++) {
+                    if (isset($node['children'])) {
+                        $keys = array_keys($node['children']);
+                        if (isset($node['children'][$keys[0]])) {
+                            $node = &$node['children'][$keys[0]];
+                        }
+                    }
+                }
+                $leaf = [
+                    'id'   => $post['nav_id'],
+                    'type' => $post['nav_type'],
+                    'name' => $post['nav_title'],
+                    'href' => $post['nav_href'],
+                    'children' => []
+                ];
+                if ($post['nav_target'] != '----') {
+                    $leaf['attributes'] = ($post['nav_target'] == 'false') ?
+                        ['onclick' => 'return false;'] : ['target' => $post['nav_target']];
+                }
+                if ($post['nav_action'] == 'prepend') {
+                    $node['children'] = array_merge([$leaf], $node['children']);
+                } else {
+                    $node['children'][] = $leaf;
+                }
+            } else {
+                $leaf = [
+                    'id'   => $post['nav_id'],
+                    'type' => $post['nav_type'],
+                    'name' => $post['nav_title'],
+                    'href' => $post['nav_href'],
+                    'children' => []
+                ];
+                if ($post['nav_action'] == 'prepend') {
+                    $currentTree = array_merge([$leaf], $currentTree);
+                } else {
+                    $currentTree[] = $leaf;
+                }
+            }
+        }
+
+        // Remove nav items
+        if (isset($post['rm_nav']) && (count($post['rm_nav']) > 0)) {
+            foreach ($post['rm_nav'] as $object) {
+                $objectAry = explode('_', $object);
+                $branch    = $objectAry[1];
+                $depth     = $objectAry[3];
+                $count     = $objectAry[5];
+
+                if ($depth > 0) {
+                    $node = &$currentTree[$branch];
+                    for ($i = 0; $i < ($depth - 1); $i++) {
+                        if (isset($node['children'])) {
+                            $keys = array_keys($node['children']);
+                            if (isset($node['children'][$keys[0]])) {
+                                $node = &$node['children'][$keys[0]];
+                            }
+                        }
+                    }
+                    if (isset($node['children']) && isset($node['children'][$count])) {
+                        unset($node['children'][$count]);
+                    }
+                } else {
+                    unset($currentTree[$branch]);
+                }
+            }
+        }
+
+        return serialize($currentTree);
     }
 
 }

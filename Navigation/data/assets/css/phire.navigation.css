@@ -65,6 +65,21 @@
     padding: 10px 0 10px 0;
 }
 
+#nav-manage-header div {
+    margin: 0 0 10px 0;
+    padding: 0 0 10px 0;
+    border-bottom: solid 1px #ccc;
+}
+
+#nav-manage-header div:last-child {
+    padding: 0;
+    border: none;
+}
+
+#nav-manage-header label {
+    display: block;
+}
+
 #nav-manage-header input[type=text] {
     margin: 0 10px 0 0;
     padding: 4px;

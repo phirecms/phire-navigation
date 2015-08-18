@@ -174,6 +174,10 @@ class Navigation
                     $config['indent'] = str_repeat(' ', (int)$nav->indent);
                 }
 
+                if ($application->isRegistered('phire-content')) {
+                    self::checkTreeStatus($tree);
+                }
+
                 $navObject = new Nav($tree, $config);
                 if ($application->services()->isAvailable('acl')) {
                     $sess = $application->services()->get('session');
@@ -215,6 +219,28 @@ class Navigation
             }
             if (isset($branch['children']) && (count($branch['children']) > 0)) {
                 self::traverseTree($branch['children'], $id, $title, $uri, $type, $roles, ($depth + 1));
+            }
+        }
+    }
+
+    /**
+     * Check tree for status
+     *
+     * @param  array  $tree
+     * @param  int    $depth
+     * @return void
+     */
+    public static function checkTreeStatus(&$tree, $depth = 0)
+    {
+        foreach ($tree as $i => &$branch) {
+            if (isset($branch['id']) && isset($branch['type']) && ($branch['type'] == 'content')) {
+                $content = \Phire\Content\Table\Content::findById($branch['id']);
+                if (isset($content->id) && ((int)$content->status != 1)) {
+                    unset($tree[$i]);
+                }
+            }
+            if (isset($branch['children']) && (count($branch['children']) > 0)) {
+                self::checkTreeStatus($branch['children'], ($depth + 1));
             }
         }
     }

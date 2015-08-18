@@ -3,7 +3,7 @@
 return [
     APP_URI => [
         '/navigation[/]' => [
-            'controller' => 'Navigation\Controller\IndexController',
+            'controller' => 'Phire\Navigation\Controller\IndexController',
             'action'     => 'index',
             'acl'        => [
                 'resource'   => 'navigation',
@@ -11,7 +11,7 @@ return [
             ]
         ],
         '/navigation/add[/]' => [
-            'controller' => 'Navigation\Controller\IndexController',
+            'controller' => 'Phire\Navigation\Controller\IndexController',
             'action'     => 'add',
             'acl'        => [
                 'resource'   => 'navigation',
@@ -19,7 +19,7 @@ return [
             ]
         ],
         '/navigation/edit/:id' => [
-            'controller' => 'Navigation\Controller\IndexController',
+            'controller' => 'Phire\Navigation\Controller\IndexController',
             'action'     => 'edit',
             'acl'        => [
                 'resource'   => 'navigation',
@@ -27,7 +27,7 @@ return [
             ]
         ],
         '/navigation/manage/:id' => [
-            'controller' => 'Navigation\Controller\IndexController',
+            'controller' => 'Phire\Navigation\Controller\IndexController',
             'action'     => 'manage',
             'acl'        => [
                 'resource'   => 'navigation',
@@ -35,7 +35,7 @@ return [
             ]
         ],
         '/navigation/remove[/]' => [
-            'controller' => 'Navigation\Controller\IndexController',
+            'controller' => 'Phire\Navigation\Controller\IndexController',
             'action'     => 'remove',
             'acl'        => [
                 'resource'   => 'navigation',

@@ -1,13 +1,13 @@
 <?php
 /**
- * Module Name: Navigation
+ * Module Name: phire-navigation
  * Author: Nick Sagona
  * Description: This is the navigation module for Phire CMS 2
  * Version: 1.0
  */
 return [
-    'Navigation' => [
-        'prefix'     => 'Navigation\\',
+    'phire-navigation' => [
+        'prefix'     => 'Phire\Navigation\\',
         'src'        => __DIR__ . '/../src',
         'routes'     => include 'routes.php',
         'resources'  => include 'resources.php',
@@ -26,12 +26,12 @@ return [
             ]
         ],
         'models' => [
-            'Navigation\Model\Navigation' => []
+            'Phire\Navigation\Model\Navigation' => []
         ],
         'events' => [
             [
                 'name'     => 'app.send',
-                'action'   => 'Navigation\Event\Navigation::getNavigation',
+                'action'   => 'Phire\Navigation\Event\Navigation::getNavigation',
                 'priority' => 1000
             ]
         ]

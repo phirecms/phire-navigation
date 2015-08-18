@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'Navigation\Form\Navigation' => [
+    'Phire\Navigation\Form\Navigation' => [
         [
             'submit' => [
                 'type'       => 'submit',

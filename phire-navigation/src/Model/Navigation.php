@@ -1,8 +1,8 @@
 <?php
 
-namespace Navigation\Model;
+namespace Phire\Navigation\Model;
 
-use Navigation\Table;
+use Phire\Navigation\Table;
 use Phire\Model\AbstractModel;
 use Pop\Nav\Nav;
 
@@ -52,16 +52,16 @@ class Navigation extends AbstractModel
         ];
 
         if ($contentLoaded) {
-            $types = \Content\Table\ContentTypes::findAll();
+            $types = \Phire\Content\Table\ContentTypes::findAll();
             foreach ($types->rows() as $type) {
-                $content = new \Content\Model\Content(['tid' => $type->id]);
+                $content = new \Phire\Content\Model\Content(['tid' => $type->id]);
                 $content->getAll();
                 $options['content'][$type->name] = $content->getFlatMap();
             }
         }
 
         if ($categoriesLoaded) {
-            $categories = new \Categories\Model\Category();
+            $categories = new \Phire\Categories\Model\Category();
             $categories->getAll();
             $options['categories'] = $categories->getFlatMap();
         }
@@ -204,11 +204,11 @@ class Navigation extends AbstractModel
         $tree = [];
 
         if ($id == 'categories') {
-            $category   = new \Categories\Model\Category();
+            $category   = new \Phire\Categories\Model\Category();
             $contentAry = $category->getAll();
             $cat        = true;
         } else {
-            $content    = new \Content\Model\Content(['tid' => $id]);
+            $content    = new \Phire\Content\Model\Content(['tid' => $id]);
             $contentAry = $content->getAll();
             $cat        = false;
         }
@@ -251,8 +251,8 @@ class Navigation extends AbstractModel
     {
         $children = [];
         $child    = ($cat) ?
-            \Categories\Table\Categories::findBy(['parent_id' => $content->id], null, ['order' => 'order ASC']) :
-            \Content\Table\Content::findBy(['parent_id' => $content->id], null, ['order' => 'order ASC']);
+            \Phire\Categories\Table\Categories::findBy(['parent_id' => $content->id], null, ['order' => 'order ASC']) :
+            \Phire\Content\Table\Content::findBy(['parent_id' => $content->id], null, ['order' => 'order ASC']);
 
         if ($child->hasRows()) {
             foreach ($child->rows() as $c) {

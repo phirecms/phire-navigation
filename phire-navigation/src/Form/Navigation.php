@@ -1,10 +1,10 @@
 <?php
 
-namespace Navigation\Form;
+namespace Phire\Navigation\Form;
 
 use Pop\Form\Form;
 use Pop\Validator;
-use Navigation\Table;
+use Phire\Navigation\Table;
 
 class Navigation extends Form
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace Navigation\Controller;
+namespace Phire\Navigation\Controller;
 
-use Navigation\Model;
-use Navigation\Form;
-use Navigation\Table;
+use Phire\Navigation\Model;
+use Phire\Navigation\Form;
+use Phire\Navigation\Table;
 use Phire\Controller\AbstractController;
 
 class IndexController extends AbstractController
@@ -35,16 +35,16 @@ class IndexController extends AbstractController
         $this->prepareView('navigation/add.phtml');
         $this->view->title = 'Navigation : Add';
 
-        $fields = $this->application->config()['forms']['Navigation\Form\Navigation'];
+        $fields = $this->application->config()['forms']['Phire\Navigation\Form\Navigation'];
 
-        if ($this->application->isRegistered('Content')) {
-            $contentTypes = \Content\Table\ContentTypes::findAll(null, ['order' => 'order ASC']);
+        if ($this->application->isRegistered('phire-content')) {
+            $contentTypes = \Phire\Content\Table\ContentTypes::findAll(null, ['order' => 'order ASC']);
             foreach ($contentTypes->rows() as $contentType) {
                 $fields[0]['create_nav_from']['value'][$contentType->id] = $contentType->name;
             }
         }
 
-        if ($this->application->isRegistered('Categories')) {
+        if ($this->application->isRegistered('phire-categories')) {
             $fields[0]['create_nav_from']['value']['categories'] = 'Categories';
         }
 
@@ -87,16 +87,16 @@ class IndexController extends AbstractController
         $this->view->title         = 'Navigation';
         $this->view->navigation_title = $navigation->title;
 
-        $fields = $this->application->config()['forms']['Navigation\Form\Navigation'];
+        $fields = $this->application->config()['forms']['Phire\Navigation\Form\Navigation'];
 
-        if ($this->application->isRegistered('Content')) {
-            $contentTypes = \Content\Table\ContentTypes::findAll(null, ['order' => 'order ASC']);
+        if ($this->application->isRegistered('phire-content')) {
+            $contentTypes = \Phire\Content\Table\ContentTypes::findAll(null, ['order' => 'order ASC']);
             foreach ($contentTypes->rows() as $contentType) {
                 $fields[0]['create_nav_from']['value'][$contentType->id] = $contentType->name;
             }
         }
 
-        if ($this->application->isRegistered('Categories')) {
+        if ($this->application->isRegistered('phire-categories')) {
             $fields[0]['create_nav_from']['value']['categories'] = 'Categories';
         }
 
@@ -148,7 +148,7 @@ class IndexController extends AbstractController
             $this->view->id               = $navigation->id;
             $this->view->tree             = $navigation->tree;
             $this->view->selectFrom       = $navigation->getSelectFrom(
-                $this->application->isRegistered('Content'), $this->application->isRegistered('Categories')
+                $this->application->isRegistered('phire-content'), $this->application->isRegistered('phire-categories')
             );
 
             $this->send();

@@ -1,9 +1,9 @@
 <?php
 
-namespace Navigation\Event;
+namespace Phire\Navigation\Event;
 
-use Navigation\Model;
-use Navigation\Table;
+use Phire\Navigation\Model;
+use Phire\Navigation\Table;
 use Pop\Application;
 use Pop\Nav\Nav;
 use Pop\Filter\Slug;
@@ -33,8 +33,8 @@ class Navigation
      */
     public static function getNavigation(AbstractController $controller, Application $application)
     {
-        if ((($application->isRegistered('Categories') && ($controller instanceof \Categories\Controller\IndexController)) ||
-            (($application->isRegistered('Content') && ($controller instanceof \Content\Controller\IndexController))) &&
+        if ((($application->isRegistered('phire-categories') && ($controller instanceof \Phire\Categories\Controller\IndexController)) ||
+            (($application->isRegistered('phire-content') && ($controller instanceof \Phire\Content\Controller\IndexController))) &&
             ($controller->hasView()))) {
             $navigation = Table\Navigation::findAll();
             foreach ($navigation->rows() as $nav) {

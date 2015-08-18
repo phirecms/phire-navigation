@@ -1,6 +1,6 @@
 <?php
 
-namespace Navigation\Table;
+namespace Phire\Navigation\Table;
 
 use Pop\Db\Record;
 

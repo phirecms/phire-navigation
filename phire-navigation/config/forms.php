@@ -36,7 +36,7 @@ return [
                 'label'      => 'Indent',
                 'attributes' => [
                     'size'  => 2,
-                    'value' => 4
+                    'value' => 0
                 ]
             ],
             'id' => [

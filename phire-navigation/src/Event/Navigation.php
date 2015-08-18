@@ -13,7 +13,7 @@ class Navigation
 {
 
     /**
-     * Update navigation
+     * Update the navigation objects
      *
      * @param  AbstractController $controller
      * @param  Application        $application
@@ -21,7 +21,44 @@ class Navigation
      */
     public static function updateNavigation(AbstractController $controller, Application $application)
     {
+        if (($_POST) && $application->isRegistered('phire-content') && ($controller->hasView()) && (null !== $controller->view()->id) &&
+            (null !== $controller->view()->form) && ($controller->view()->form instanceof \Phire\Content\Form\Content)) {
+            $title = $controller->view()->form->title;
+            $uri   = $controller->view()->form->uri;
+            $id    = $controller->view()->id;
+            $roles = (isset($_POST['roles']) ? $_POST['roles'] : null);
 
+            $navigation = Table\Navigation::findAll();
+            foreach ($navigation->rows() as $nav) {
+                $tree = (null !== $nav->tree) ? unserialize($nav->tree) : [];
+                if (count($tree) > 0) {
+                    self::traverseTree($tree, $id, $title, $uri, 'content', $roles);
+                    $revisedNav = Table\Navigation::findById($nav->id);
+                    if (isset($revisedNav->id)) {
+                        $revisedNav->tree = serialize($tree);
+                        $revisedNav->save();
+                    }
+                }
+            }
+        } else if (($_POST) && $application->isRegistered('phire-categories') && ($controller->hasView()) && (null !== $controller->view()->id) &&
+            (null !== $controller->view()->form) && ($controller->view()->form instanceof \Phire\Categories\Form\Category)) {
+            $title = $controller->view()->form->title;
+            $uri   = '/category' . $controller->view()->form->uri;
+            $id    = $controller->view()->id;
+
+            $navigation = Table\Navigation::findAll();
+            foreach ($navigation->rows() as $nav) {
+                $tree = (null !== $nav->tree) ? unserialize($nav->tree) : [];
+                if (count($tree) > 0) {
+                    self::traverseTree($tree, $id, $title, $uri, 'category');
+                    $revisedNav = Table\Navigation::findById($nav->id);
+                    if (isset($revisedNav->id)) {
+                        $revisedNav->tree = serialize($tree);
+                        $revisedNav->save();
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -137,7 +174,47 @@ class Navigation
                     $config['indent'] = str_repeat(' ', (int)$nav->indent);
                 }
 
-                $controller->view()->set($name, new Nav($tree, $config));
+                $navObject = new Nav($tree, $config);
+                if ($application->services()->isAvailable('acl')) {
+                    $sess = $application->services()->get('session');
+                    $navObject->setAcl($application->services()->get('acl'));
+                    if (isset($sess->user) && isset($sess->user->role)) {
+                        $navObject->setRole($application->services()->get('acl')->getRole($sess->user->role));
+                    }
+                }
+                $controller->view()->set($name, $navObject);
+            }
+        }
+    }
+
+    /**
+     * Traverse tree for updates
+     *
+     * @param  array  $tree
+     * @param  int    $id
+     * @param  string $title
+     * @param  string $uri
+     * @param  string $type
+     * @param  mixed  $roles
+     * @param  int    $depth
+     * @return void
+     */
+    public static function traverseTree(&$tree, $id, $title, $uri, $type, $roles = null, $depth = 0)
+    {
+        foreach ($tree as &$branch) {
+            if (isset($branch['id']) && isset($branch['type']) && ($branch['id'] == $id) && ($branch['type'] == $type)) {
+                $branch['name'] = $title;
+                $branch['href'] = $uri;
+                if ((null !== $roles) && is_array($roles) && (count($roles) > 0)) {
+                    $branch['acl'] = [
+                        'resource' => 'content-' . $id
+                    ];
+                } else if (isset($branch['acl'])) {
+                    unset($branch['acl']);
+                }
+            }
+            if (isset($branch['children']) && (count($branch['children']) > 0)) {
+                self::traverseTree($branch['children'], $id, $title, $uri, $type, $roles, ($depth + 1));
             }
         }
     }

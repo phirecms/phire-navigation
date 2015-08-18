@@ -61,7 +61,7 @@ class IndexController extends AbstractController
                 $navigation = new Model\Navigation();
                 $navigation->save($this->view->form->getFields());
                 $this->view->id = $navigation->id;
-                $this->redirect(BASE_PATH . APP_URI . '/navigation/edit/'. $navigation->id . '?saved=' . time());
+                $this->redirect(BASE_PATH . APP_URI . '/navigation/manage/'. $navigation->id . '?saved=' . time());
             }
         }
 
@@ -116,7 +116,7 @@ class IndexController extends AbstractController
 
                 $navigation->update($this->view->form->getFields());
                 $this->view->id = $navigation->id;
-                $this->redirect(BASE_PATH . APP_URI . '/navigation/edit/'. $navigation->id . '?saved=' . time());
+                $this->redirect(BASE_PATH . APP_URI . '/navigation/manage/'. $navigation->id . '?saved=' . time());
             }
         }
 

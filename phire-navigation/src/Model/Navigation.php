@@ -227,7 +227,9 @@ class Navigation extends AbstractModel
             if (isset($c->roles)) {
                 $roles = unserialize($c->roles);
                 if (count($roles) > 0) {
-                    $branch['acl'] = [];
+                    $branch['acl'] = [
+                        'resource' => 'content-' . $c->id
+                    ];
                 }
             }
 
@@ -268,7 +270,9 @@ class Navigation extends AbstractModel
                 if (isset($c->roles)) {
                     $roles = unserialize($c->roles);
                     if (count($roles) > 0) {
-                        $branch['acl'] = [];
+                        $branch['acl'] = [
+                            'resource' => 'content-' . $c->id
+                        ];
                     }
                 }
 
@@ -294,18 +298,15 @@ class Navigation extends AbstractModel
         if (($post['nav_title'] != '') && ($post['nav_href'] != '')) {
             if ($post['nav_action_object'] != '----') {
                 $objectAry = explode('_', $post['nav_action_object']);
-                $branch    = $objectAry[1];
-                $depth     = $objectAry[3];
-
-                $node = &$currentTree[$branch];
-                for ($i = 0; $i < $depth; $i++) {
-                    if (isset($node['children'])) {
-                        $keys = array_keys($node['children']);
-                        if (isset($node['children'][$keys[0]])) {
-                            $node = &$node['children'][$keys[0]];
-                        }
+                $node      = [];
+                foreach ($objectAry as $key => $index) {
+                    if ($key == 0) {
+                        $node = &$currentTree[$index];
+                    } else if (isset($node['children']) && isset($node['children'][$index])) {
+                        $node = &$node['children'][$index];
                     }
                 }
+
                 $leaf = [
                     'id'   => $post['nav_id'],
                     'type' => $post['nav_type'],
@@ -316,6 +317,9 @@ class Navigation extends AbstractModel
                 if ($post['nav_target'] != '----') {
                     $leaf['attributes'] = ($post['nav_target'] == 'false') ?
                         ['onclick' => 'return false;'] : ['target' => $post['nav_target']];
+                }
+                if (!isset($node['children'])) {
+                    $node['children'] = [];
                 }
                 if ($post['nav_action'] == 'prepend') {
                     $node['children'] = array_merge([$leaf], $node['children']);
@@ -342,25 +346,21 @@ class Navigation extends AbstractModel
         if (isset($post['rm_nav']) && (count($post['rm_nav']) > 0)) {
             foreach ($post['rm_nav'] as $object) {
                 $objectAry = explode('_', $object);
-                $branch    = $objectAry[1];
-                $depth     = $objectAry[3];
-                $count     = $objectAry[5];
-
-                if ($depth > 0) {
-                    $node = &$currentTree[$branch];
-                    for ($i = 0; $i < ($depth - 1); $i++) {
-                        if (isset($node['children'])) {
-                            $keys = array_keys($node['children']);
-                            if (isset($node['children'][$keys[0]])) {
-                                $node = &$node['children'][$keys[0]];
-                            }
+                $node      = [];
+                foreach ($objectAry as $key => $index) {
+                    if ($key == 0) {
+                        if ($key == (count($objectAry) - 1)) {
+                            unset($currentTree[$index]);
+                        } else {
+                            $node = &$currentTree[$index];
+                        }
+                    } else if (isset($node['children']) && isset($node['children'][$index])) {
+                        if ($key == (count($objectAry) - 1)) {
+                            unset($node['children'][$index]);
+                        } else {
+                            $node = &$node['children'][$index];
                         }
                     }
-                    if (isset($node['children']) && isset($node['children'][$count])) {
-                        unset($node['children'][$count]);
-                    }
-                } else {
-                    unset($currentTree[$branch]);
                 }
             }
         }

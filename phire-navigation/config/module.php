@@ -33,6 +33,11 @@ return [
                 'name'     => 'app.send',
                 'action'   => 'Phire\Navigation\Event\Navigation::getNavigation',
                 'priority' => 1000
+            ],
+            [
+                'name'     => 'app.send',
+                'action'   => 'Phire\Navigation\Event\Navigation::updateNavigation',
+                'priority' => 1000
             ]
         ]
     ]

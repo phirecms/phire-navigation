@@ -5,6 +5,7 @@ namespace Phire\Navigation\Model;
 use Phire\Navigation\Table;
 use Phire\Model\AbstractModel;
 use Pop\Nav\Nav;
+use Pop\Web\Session;
 
 class Navigation extends AbstractModel
 {
@@ -208,8 +209,13 @@ class Navigation extends AbstractModel
             $contentAry = $category->getAll();
             $cat        = true;
         } else {
+            $sess = Session::getInstance();
+            unset($sess->lastSortField);
+            unset($sess->lastSortOrder);
+            unset($sess->lastPage);
+
             $content    = new \Phire\Content\Model\Content(['tid' => $id]);
-            $contentAry = $content->getAll();
+            $contentAry = $content->getAll('id');
             $cat        = false;
         }
 

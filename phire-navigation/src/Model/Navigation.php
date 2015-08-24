@@ -53,10 +53,15 @@ class Navigation extends AbstractModel
         ];
 
         if ($contentLoaded) {
+            $sess = Session::getInstance();
+            unset($sess->lastSortField);
+            unset($sess->lastSortOrder);
+            unset($sess->lastPage);
+
             $types = \Phire\Content\Table\ContentTypes::findAll();
             foreach ($types->rows() as $type) {
                 $content = new \Phire\Content\Model\Content(['tid' => $type->id]);
-                $content->getAll();
+                $content->getAll('id');
                 $options['content'][$type->name] = $content->getFlatMap();
             }
         }

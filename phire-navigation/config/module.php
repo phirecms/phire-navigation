@@ -30,12 +30,12 @@ return [
         ],
         'events' => [
             [
-                'name'     => 'app.send',
+                'name'     => 'app.send.pre',
                 'action'   => 'Phire\Navigation\Event\Navigation::getNavigation',
                 'priority' => 1000
             ],
             [
-                'name'     => 'app.send',
+                'name'     => 'app.send.pre',
                 'action'   => 'Phire\Navigation\Event\Navigation::updateNavigation',
                 'priority' => 1000
             ]

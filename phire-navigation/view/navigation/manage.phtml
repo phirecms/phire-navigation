@@ -26,11 +26,13 @@
 <?php endforeach; ?>
                     </optgroup>
 <?php endforeach; ?>
+<?php if (count($selectFrom['categories']) > 0): ?>
                     <optgroup label="Categories">
 <?php foreach ($selectFrom['categories'] as $c): ?>
                         <option value="<?=$c['id'];?>|category|<?=BASE_PATH . '/category' . $c['uri']; ?>|<?=$c['title']; ?>"><?=str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', $c['depth']) . (($c['depth'] > 0) ? '&rarr; ' : '') . $c['title']; ?></option>
 <?php endforeach; ?>
                     </optgroup>
+<?php endif; ?>
                 </select>
                 <select name="nav_action">
                     <option value="append">[ Append To ]</option>

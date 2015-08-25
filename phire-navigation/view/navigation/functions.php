@@ -36,6 +36,19 @@ function printNavTree($tree, $depth = 0, $ancestor = null) {
         endif; ?>
             <div class="nav-branch" style="width: <?='calc(' . (100 - (10 * $depth)); ?>% - 22px);">
                 <span class="rm-nav-span">Remove?</span><input class="rm-nav-checkbox" type="checkbox" name="rm_nav[]" value="<?=$ancestor; ?>" />
+                <span class="edit-nav-span"><a class="small-link" href="#" onclick="return phire.editNavItem('<?=$ancestor; ?>', '<?=addslashes(htmlentities($branch['name'], ENT_COMPAT, 'UTF-8')); ?>', '<?=$branch['href']; ?>', <?php
+if (isset($branch['attributes'])):
+    if (isset($branch['attributes']['onclick'])):
+        echo "'false'";
+    elseif (isset($branch['attributes']['target'])):
+        echo "'" . $branch['attributes']['target'] . "'";
+    else:
+        echo "''";
+    endif;
+else:
+    echo "''";
+endif;
+?>);">Edit</a></span>
                 <a href="<?=$branch['href']; ?>" target="_blank"><?=$branch['name']; ?></a>
             </div>
 <?php

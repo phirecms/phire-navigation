@@ -65,4 +65,28 @@
         </div>
     </form>
 <?php endif; ?>
+<div id="nav-edit">
+    <a href="#" class="small-link" onclick="jax('#nav-edit').fade(0); return false;">close [x]</a>
+    <form id="navigation-manage-edit-form" action="<?=$phireUri . '/navigation/manage/' . $id; ?>" method="post">
+        <div>
+            <input type="text" name="nav_edit_title" id="nav_edit_title" value="" size="50" placeholder="Title" />
+        </div>
+        <div>
+            <input type="text" name="nav_edit_href" id="nav_edit_href" value="" size="50" placeholder="Link" />
+            <select name="nav_edit_target" id="nav_edit_target">
+                <option value="----">[ Target ]</option>
+                <option value="_blank">New</option>
+                <option value="_parent">Parent</option>
+                <option value="_top">Top</option>
+                <option value="false">False</option>
+            </select>
+        </div>
+        <div>
+            <input type="hidden" name="branch_to_edit" id="branch_to_edit" value="" />
+            <input type="hidden" name="action_edit" id="action_edit" value="1" />
+            <input type="hidden" name="id" id="id" value="<?=$id; ?>" />
+            <input type="submit" name="submit" class="save-btn" value="Save" />
+        </div>
+    </form>
+</div>
 <?php include $phireFooter; ?>

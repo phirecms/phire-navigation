@@ -17,6 +17,20 @@ phire.changeNavItem = function() {
     }
 };
 
+phire.editNavItem = function(branch, title, href, target) {
+    console.log(title);
+    jax('#branch_to_edit').val(branch);
+    jax('#nav_edit_title').val(title);
+    jax('#nav_edit_href').val(href);
+    if (target != '') {
+        jax('#nav_edit_target').val(target);
+    } else {
+        jax('#nav_edit_target').val('----');
+    }
+    jax('#nav-edit').fade(100);
+    return false;
+};
+
 jax(document).ready(function(){
     if (jax('#navigations-form')[0] != undefined) {
         jax('#checkall').click(function(){

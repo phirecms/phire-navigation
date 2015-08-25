@@ -98,6 +98,52 @@
     padding: 10px 0 10px 0;
 }
 
+#nav-edit {
+    position: absolute;
+    z-index: 10000;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: none;
+    opacity: 0;
+    margin: auto;
+    font-weight: bold;
+    padding: 12px;
+    width: 420px;
+    height: 160px;
+    font-size: 0.9em;
+    line-height: 1.5em;
+    color: #555;
+    background-color: #fff;
+    border-radius: 7px;
+    box-shadow: 0 0 6px 2px #bbb;
+}
+
+#nav-edit > a:first-child {
+    float: right;
+}
+
+#navigation-manage-edit-form {
+    margin: 0;
+    padding: 0;
+}
+#navigation-manage-edit-form > div {
+    margin: 0;
+    padding: 5px;
+}
+
+#navigation-manage-edit-form > div:last-child {
+    margin: 10px 0 0 0;
+    padding: 12px 0 0 0;
+    border-top: solid 1px #ccc;
+}
+#navigation-manage-edit-form > div:last-child > input[type=submit] {
+    margin: 0 12px 0 0;
+    width: 75px;
+    float: right;
+}
+
 .navigation-nav-icon {
     background-image: url(../img/navigation-icon-sm.png);
     background-position: 8px center;
@@ -133,6 +179,13 @@ span.rm-nav-span {
     margin: 3px 0 0 0;
     padding: 0;
     font-size: 0.825em;
+}
+
+span.edit-nav-span {
+    margin: 0 10px 0 0;
+    padding: 0 10px 0 0;
+    float: right;
+    border-right: solid 1px #999;
 }
 
 input.rm-nav-checkbox {

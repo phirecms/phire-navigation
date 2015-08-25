@@ -305,71 +305,129 @@ class Navigation extends AbstractModel
      */
     protected function modifyTree(array $currentTree, array $post)
     {
-        // Add nav items
-        if (($post['nav_title'] != '') && ($post['nav_href'] != '')) {
-            if ($post['nav_action_object'] != '----') {
-                $objectAry = explode('_', $post['nav_action_object']);
-                $node      = [];
-                foreach ($objectAry as $key => $index) {
-                    if ($key == 0) {
+        // Edit nav items
+        if (isset($post['action_edit']) && ($post['action_edit'])) {
+            $objectAry = explode('_', $post['branch_to_edit']);
+            $node      = [];
+
+            $post['nav_edit_title'] = stripslashes(html_entity_decode($post['nav_edit_title'], ENT_COMPAT, 'UTF-8'));
+
+            foreach ($objectAry as $key => $index) {
+                if ($key == 0) {
+                    if ($key == (count($objectAry) - 1)) {
+                        if (isset($currentTree[$index]['name'])) {
+                            $currentTree[$index]['name'] = $post['nav_edit_title'];
+                        }
+                        if (isset($currentTree[$index]['href'])) {
+                            $currentTree[$index]['href'] = $post['nav_edit_href'];
+                        }
+                        if ($post['nav_edit_target'] != '----') {
+                            if (isset($currentTree[$index]['attributes'])) {
+                                if (isset($currentTree[$index]['attributes']['onclick'])) {
+                                    unset($currentTree[$index]['attributes']['onclick']);
+                                }
+                                if (isset($currentTree[$index]['attributes']['target'])) {
+                                    unset($currentTree[$index]['attributes']['target']);
+                                }
+                            }
+                            $currentTree[$index]['attributes'] = ($post['nav_edit_target'] == 'false') ?
+                                ['onclick' => 'return false;'] : ['target' => $post['nav_edit_target']];
+                        }
+                    } else {
                         $node = &$currentTree[$index];
-                    } else if (isset($node['children']) && isset($node['children'][$index])) {
+                    }
+                } else if (isset($node['children']) && isset($node['children'][$index])) {
+                    if ($key == (count($objectAry) - 1)) {
+                        if (isset($node['children'][$index]['name'])) {
+                            $node['children'][$index]['name'] = $post['nav_edit_title'];
+                        }
+                        if (isset($node['children'][$index]['href'])) {
+                            $node['children'][$index]['href'] = $post['nav_edit_href'];
+                        }
+                        if ($post['nav_edit_target'] != '----') {
+                            if (isset($node['children'][$index]['attributes'])) {
+                                if (isset($node['children'][$index]['attributes']['onclick'])) {
+                                    unset($node['children'][$index]['attributes']['onclick']);
+                                }
+                                if (isset($node['children'][$index]['attributes']['target'])) {
+                                    unset($node['children'][$index]['attributes']['target']);
+                                }
+                            }
+                            $node['children'][$index]['attributes'] = ($post['nav_edit_target'] == 'false') ?
+                                ['onclick' => 'return false;'] : ['target' => $post['nav_edit_target']];
+                        }
+                    } else {
                         $node = &$node['children'][$index];
                     }
                 }
+            }
+        // Add nav items
+        } else {
+            if (($post['nav_title'] != '') && ($post['nav_href'] != '')) {
+                if ($post['nav_action_object'] != '----') {
+                    $objectAry = explode('_', $post['nav_action_object']);
+                    $node      = [];
+                    foreach ($objectAry as $key => $index) {
+                        if ($key == 0) {
+                            $node = &$currentTree[$index];
+                        } else if (isset($node['children']) && isset($node['children'][$index])) {
+                            $node = &$node['children'][$index];
+                        }
+                    }
 
-                $leaf = [
-                    'id'   => $post['nav_id'],
-                    'type' => $post['nav_type'],
-                    'name' => $post['nav_title'],
-                    'href' => $post['nav_href'],
-                    'children' => []
-                ];
-                if ($post['nav_target'] != '----') {
-                    $leaf['attributes'] = ($post['nav_target'] == 'false') ?
-                        ['onclick' => 'return false;'] : ['target' => $post['nav_target']];
-                }
-                if (!isset($node['children'])) {
-                    $node['children'] = [];
-                }
-                if ($post['nav_action'] == 'prepend') {
-                    $node['children'] = array_merge([$leaf], $node['children']);
+                    $leaf = [
+                        'id'   => $post['nav_id'],
+                        'type' => $post['nav_type'],
+                        'name' => $post['nav_title'],
+                        'href' => $post['nav_href'],
+                        'children' => []
+                    ];
+                    if ($post['nav_target'] != '----') {
+                        $leaf['attributes'] = ($post['nav_target'] == 'false') ?
+                            ['onclick' => 'return false;'] : ['target' => $post['nav_target']];
+                    }
+                    if (!isset($node['children'])) {
+                        $node['children'] = [];
+                    }
+                    if ($post['nav_action'] == 'prepend') {
+                        $node['children'] = array_merge([$leaf], $node['children']);
+                    } else {
+                        $node['children'][] = $leaf;
+                    }
                 } else {
-                    $node['children'][] = $leaf;
-                }
-            } else {
-                $leaf = [
-                    'id'   => $post['nav_id'],
-                    'type' => $post['nav_type'],
-                    'name' => $post['nav_title'],
-                    'href' => $post['nav_href'],
-                    'children' => []
-                ];
-                if ($post['nav_action'] == 'prepend') {
-                    $currentTree = array_merge([$leaf], $currentTree);
-                } else {
-                    $currentTree[] = $leaf;
+                    $leaf = [
+                        'id'   => $post['nav_id'],
+                        'type' => $post['nav_type'],
+                        'name' => $post['nav_title'],
+                        'href' => $post['nav_href'],
+                        'children' => []
+                    ];
+                    if ($post['nav_action'] == 'prepend') {
+                        $currentTree = array_merge([$leaf], $currentTree);
+                    } else {
+                        $currentTree[] = $leaf;
+                    }
                 }
             }
-        }
 
-        // Remove nav items
-        if (isset($post['rm_nav']) && (count($post['rm_nav']) > 0)) {
-            foreach ($post['rm_nav'] as $object) {
-                $objectAry = explode('_', $object);
-                $node      = [];
-                foreach ($objectAry as $key => $index) {
-                    if ($key == 0) {
-                        if ($key == (count($objectAry) - 1)) {
-                            unset($currentTree[$index]);
-                        } else {
-                            $node = &$currentTree[$index];
-                        }
-                    } else if (isset($node['children']) && isset($node['children'][$index])) {
-                        if ($key == (count($objectAry) - 1)) {
-                            unset($node['children'][$index]);
-                        } else {
-                            $node = &$node['children'][$index];
+            // Remove nav items
+            if (isset($post['rm_nav']) && (count($post['rm_nav']) > 0)) {
+                foreach ($post['rm_nav'] as $object) {
+                    $objectAry = explode('_', $object);
+                    $node      = [];
+                    foreach ($objectAry as $key => $index) {
+                        if ($key == 0) {
+                            if ($key == (count($objectAry) - 1)) {
+                                unset($currentTree[$index]);
+                            } else {
+                                $node = &$currentTree[$index];
+                            }
+                        } else if (isset($node['children']) && isset($node['children'][$index])) {
+                            if ($key == (count($objectAry) - 1)) {
+                                unset($node['children'][$index]);
+                            } else {
+                                $node = &$node['children'][$index];
+                            }
                         }
                     }
                 }

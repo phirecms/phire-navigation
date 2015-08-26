@@ -18,7 +18,6 @@ phire.changeNavItem = function() {
 };
 
 phire.editNavItem = function(branch, title, href, target) {
-    console.log(title);
     jax('#branch_to_edit').val(branch);
     jax('#nav_edit_title').val(title);
     jax('#nav_edit_href').val(href);
@@ -27,6 +26,7 @@ phire.editNavItem = function(branch, title, href, target) {
     } else {
         jax('#nav_edit_target').val('----');
     }
+    jax('#nav-edit').css('top',(300 + jax().getScrollY()) + 'px');
     jax('#nav-edit').fade(100);
     return false;
 };

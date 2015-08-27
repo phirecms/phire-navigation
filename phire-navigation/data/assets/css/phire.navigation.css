@@ -84,7 +84,7 @@
     margin: 0 10px 0 0;
     padding: 4px;
     height: 18px;
-    font-size: 0.825em;
+    font-size: 0.9em;
 }
 
 #nav-manage-header select {
@@ -117,8 +117,18 @@
     box-shadow: 0 0 6px 2px #bbb;
 }
 
-#nav-edit > a:first-child {
+a.nav-close-link {
+    margin: 0;
+    padding: 0;
+    display: block;
+    width: 22px;
+    height: 22px;
     float: right;
+    background-image: url(../../phire/img/x-black.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+    text-indent: -9999px;
 }
 
 #navigation-manage-edit-form {
@@ -135,6 +145,19 @@
     padding: 12px 0 0 0;
     border-top: solid 1px #ccc;
 }
+
+#navigation-manage-edit-form input[type=text] {
+    margin: 0 8px 0 0;
+    padding: 3px;
+    height: 18px;
+    font-size: 1.0em;
+    width: 310px;
+}
+
+#navigation-manage-edit-form select {
+    height: 26px;
+}
+
 #navigation-manage-edit-form > div:last-child > input[type=submit] {
     margin: 0 12px 0 0;
     width: 75px;

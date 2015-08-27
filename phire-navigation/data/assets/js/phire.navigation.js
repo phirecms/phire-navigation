@@ -27,7 +27,10 @@ phire.editNavItem = function(branch, title, href, target) {
         jax('#nav_edit_target').val('----');
     }
     jax('#nav-edit').css('top',(300 + jax().getScrollY()) + 'px');
-    jax('#nav-edit').fade(100);
+    jax('#nav-edit').fade(100, {
+        tween : 25,
+        speed : 250
+    });
     return false;
 };
 
@@ -43,5 +46,8 @@ jax(document).ready(function(){
         jax('#navigations-form').submit(function(){
             return jax('#navigations-form').checkValidate('checkbox', true);
         });
+    }
+    if (jax('#navigation-manage-form')[0] != undefined) {
+        jax('body').css('overflow', 'visible');
     }
 });

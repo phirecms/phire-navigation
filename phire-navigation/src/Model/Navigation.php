@@ -19,7 +19,7 @@ class Navigation extends AbstractModel
     public function getAll($sort = null)
     {
         $order = (null !== $sort) ? $this->getSortOrder($sort) : 'id ASC';
-        return Table\Navigation::findAll(null, ['order' => $order])->rows();
+        return Table\Navigation::findAll(['order' => $order])->rows();
     }
 
     /**
@@ -264,8 +264,8 @@ class Navigation extends AbstractModel
     {
         $children = [];
         $child    = ($cat) ?
-            \Phire\Categories\Table\Categories::findBy(['parent_id' => $content->id], null, ['order' => 'order ASC']) :
-            \Phire\Content\Table\Content::findBy(['parent_id' => $content->id], null, ['order' => 'order ASC']);
+            \Phire\Categories\Table\Categories::findBy(['parent_id' => $content->id], ['order' => 'order ASC']) :
+            \Phire\Content\Table\Content::findBy(['parent_id' => $content->id], ['order' => 'order ASC']);
 
         if ($child->hasRows()) {
             foreach ($child->rows() as $c) {

@@ -38,7 +38,7 @@ class IndexController extends AbstractController
         $fields = $this->application->config()['forms']['Phire\Navigation\Form\Navigation'];
 
         if ($this->application->isRegistered('phire-content')) {
-            $contentTypes = \Phire\Content\Table\ContentTypes::findAll(null, ['order' => 'order ASC']);
+            $contentTypes = \Phire\Content\Table\ContentTypes::findAll(['order' => 'order ASC']);
             foreach ($contentTypes->rows() as $contentType) {
                 $fields[0]['create_nav_from']['value'][$contentType->id] = $contentType->name;
             }
@@ -90,7 +90,7 @@ class IndexController extends AbstractController
         $fields = $this->application->config()['forms']['Phire\Navigation\Form\Navigation'];
 
         if ($this->application->isRegistered('phire-content')) {
-            $contentTypes = \Phire\Content\Table\ContentTypes::findAll(null, ['order' => 'order ASC']);
+            $contentTypes = \Phire\Content\Table\ContentTypes::findAll(['order' => 'order ASC']);
             foreach ($contentTypes->rows() as $contentType) {
                 $fields[0]['create_nav_from']['value'][$contentType->id] = $contentType->name;
             }

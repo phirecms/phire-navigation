@@ -9,6 +9,9 @@
     </nav>
     <form id="navigation-manage-form" action="<?=$phireUri . '/navigation/manage/' . $id; ?>" method="post">
         <div id="nav-manage-header">
+<?php if ($acl->isAllowed($user->role, 'navigation', 'remove')): ?>
+            <input type="submit" name="submit" class="save-btn" value="Save" />
+<?php endif; ?>
             <div>
                 <label for="nav_title">Add New Item</label>
                 <input type="text" name="nav_title" id="nav_title" value="" size="60" placeholder="Title" />
@@ -62,7 +65,7 @@
         </div>
 <?php if ($acl->isAllowed($user->role, 'navigation', 'remove')): ?>
         <div id="nav-manage-footer">
-            <input type="submit" name="submit" class="save-btn" style="width: 240px;" value="Save" />
+            <input type="submit" name="submit" class="save-btn" value="Save" />
             <input type="hidden" name="id" id="id" value="<?=$id; ?>" />
         </div>
     </form>

@@ -402,6 +402,10 @@ class Navigation extends AbstractModel
                         'href' => $post['nav_href'],
                         'children' => []
                     ];
+                    if ($post['nav_target'] != '----') {
+                        $leaf['attributes'] = ($post['nav_target'] == 'false') ?
+                            ['onclick' => 'return false;'] : ['target' => $post['nav_target']];
+                    }
                     if ($post['nav_action'] == 'prepend') {
                         $currentTree = array_merge([$leaf], $currentTree);
                     } else {

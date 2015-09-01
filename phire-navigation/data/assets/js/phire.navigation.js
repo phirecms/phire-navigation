@@ -21,6 +21,7 @@ phire.editNavItem = function(branch, title, href, target) {
     jax('#branch_to_edit').val(branch);
     jax('#nav_edit_title').val(title);
     jax('#nav_edit_href').val(href);
+    console.log(target);
     if (target != '') {
         jax('#nav_edit_target').val(target);
     } else {

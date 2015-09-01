@@ -96,6 +96,18 @@
     border-top: solid 1px #ccc;
     margin: 10px auto 10px auto;
     padding: 10px 0 10px 0;
+    overflow: auto;
+}
+
+#nav-manage-header > input[type=submit] {
+    margin: 15px 0 0 0;
+    width: 160px;
+    float: right;
+}
+
+#nav-manage-footer > input[type=submit] {
+    width: 160px;
+    float: right;
 }
 
 #nav-edit {
@@ -107,7 +119,7 @@
     left: calc((100% - 444px) / 2);
     font-weight: bold;
     padding: 12px;
-    width: 420px;
+    width: 450px;
     height: 160px;
     font-size: 0.9em;
     line-height: 1.5em;

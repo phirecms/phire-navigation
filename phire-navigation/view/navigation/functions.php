@@ -49,7 +49,7 @@ else:
     echo "''";
 endif;
 ?>);">Edit</a></span>
-                <a href="<?=$branch['href']; ?>" target="_blank"><?=$branch['name']; ?></a>
+                <a href="<?=$branch['href']; ?>" target="_blank"<?=($branch['href'] == '#') ? ' onclick="return false;"' : null; ?>><?=$branch['name']; ?></a>
             </div>
 <?php
         if (count($branch['children']) > 0):

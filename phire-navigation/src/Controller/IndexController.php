@@ -61,7 +61,8 @@ class IndexController extends AbstractController
                 $navigation = new Model\Navigation();
                 $navigation->save($this->view->form->getFields());
                 $this->view->id = $navigation->id;
-                $this->redirect(BASE_PATH . APP_URI . '/navigation/manage/'. $navigation->id . '?saved=' . time());
+                $this->sess->setRequestValue('saved', true, 1);
+                $this->redirect(BASE_PATH . APP_URI . '/navigation/manage/'. $navigation->id);
             }
         }
 
@@ -116,7 +117,8 @@ class IndexController extends AbstractController
 
                 $navigation->update($this->view->form->getFields());
                 $this->view->id = $navigation->id;
-                $this->redirect(BASE_PATH . APP_URI . '/navigation/manage/'. $navigation->id . '?saved=' . time());
+                $this->sess->setRequestValue('saved', true, 1);
+                $this->redirect(BASE_PATH . APP_URI . '/navigation/manage/'. $navigation->id);
             }
         }
 
@@ -140,7 +142,8 @@ class IndexController extends AbstractController
 
         if ($this->request->isPost()) {
             $navigation->saveTree($this->request->getPost());
-            $this->redirect(BASE_PATH . APP_URI . '/navigation/manage/'. $navigation->id . '?saved=' . time());
+            $this->sess->setRequestValue('saved', true, 1);
+            $this->redirect(BASE_PATH . APP_URI . '/navigation/manage/'. $navigation->id);
         } else {
             $this->prepareView('navigation/manage.phtml');
             $this->view->title            = 'Navigation : Manage';
@@ -166,7 +169,8 @@ class IndexController extends AbstractController
             $navigation = new Model\Navigation();
             $navigation->remove($this->request->getPost());
         }
-        $this->redirect(BASE_PATH . APP_URI . '/navigation?removed=' . time());
+        $this->sess->setRequestValue('removed', true, 1);
+        $this->redirect(BASE_PATH . APP_URI . '/navigation');
     }
 
     /**

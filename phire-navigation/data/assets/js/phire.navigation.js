@@ -50,5 +50,14 @@ jax(document).ready(function(){
     }
     if (jax('#navigation-manage-form')[0] != undefined) {
         jax('body').css('overflow', 'visible');
+
+        var leafInputs  = jax('input.leaf-order');
+        var rmNavInputs = jax('input.rm-nav-checkbox');
+        for (var i = 0; i < leafInputs.length; i++) {
+            jax(leafInputs[i]).attrib('tabindex', i + 1001);
+        }
+        for (var i = 0; i < rmNavInputs.length; i++) {
+            jax(rmNavInputs[i]).attrib('tabindex', i + 2001);
+        }
     }
 });

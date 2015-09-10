@@ -10,17 +10,17 @@
     <form id="navigation-manage-form" action="<?=$phireUri . '/navigation/manage/' . $id; ?>" method="post">
         <div id="nav-manage-header">
 <?php if ($acl->isAllowed($user->role, 'navigation', 'remove')): ?>
-            <input type="submit" name="submit" class="save-btn" value="Save" />
+            <input type="submit" name="submit" class="save-btn" value="Save" tabindex="3000" />
 <?php endif; ?>
             <div>
                 <label for="nav_title">Add New Item</label>
-                <input type="text" name="nav_title" id="nav_title" value="" size="60" placeholder="Title" />
-                <input type="text" name="nav_href" id="nav_href" value="" size="50" placeholder="Link" />
-                <input type="hidden" name="nav_id" id="nav_id" value="" />
-                <input type="hidden" name="nav_type" id="nav_type" value="" />
+                <input type="text" name="nav_title" id="nav_title" value="" size="60" placeholder="Title" tabindex="1" />
+                <input type="text" name="nav_href" id="nav_href" value="" size="50" placeholder="Link" tabindex="2" />
+                <input type="hidden" name="nav_id" id="nav_id" value="" tabindex="3" />
+                <input type="hidden" name="nav_type" id="nav_type" value="" tabindex="4" />
             </div>
             <div>
-                <select name="nav_from" id="nav_from" onchange="phire.changeNavItem();">
+                <select name="nav_from" id="nav_from" onchange="phire.changeNavItem();" tabindex="5">
                     <option value="----">[ Add Item From ]</option>
 <?php foreach ($selectFrom['content'] as $type => $content): ?>
                     <optgroup label="<?=$type; ?>">
@@ -37,17 +37,17 @@
                     </optgroup>
 <?php endif; ?>
                 </select>
-                <select name="nav_action">
+                <select name="nav_action" tabindex="6">
                     <option value="append">[ Append To ]</option>
                     <option value="prepend">[ Prepend To ]</option>
                 </select>
-                <select name="nav_action_object">
+                <select name="nav_action_object" tabindex="7">
                     <option value="----">----</option>
 <?php if (count($tree) > 0): ?>
 <?php printNavOptions($tree); ?>
 <?php endif; ?>
                 </select>
-                <select name="nav_target">
+                <select name="nav_target" tabindex="8">
                     <option value="----">[ Target ]</option>
                     <option value="_blank">New</option>
                     <option value="_parent">Parent</option>
@@ -90,7 +90,7 @@
             <input type="hidden" name="branch_to_edit" id="branch_to_edit" value="" />
             <input type="hidden" name="action_edit" id="action_edit" value="1" />
             <input type="hidden" name="id" id="id" value="<?=$id; ?>" />
-            <input type="submit" name="submit" class="save-btn" value="Save" />
+            <input type="submit" name="submit" class="save-btn" value="Save" tabindex="3001" />
         </div>
     </form>
 </div>

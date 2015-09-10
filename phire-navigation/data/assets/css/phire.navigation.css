@@ -224,3 +224,12 @@ input.rm-nav-checkbox {
     margin: 4px 4px 0 0;
     float: right;
 }
+
+input.leaf-order {
+    margin: 0 0 0 10px;
+    padding: 3px;
+    background-color: #fff;
+    font-size: 0.825em;
+    border-radius: 3px;
+    text-align: center;
+}

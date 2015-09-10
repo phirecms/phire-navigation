@@ -48,7 +48,7 @@ if (isset($branch['attributes'])):
 else:
     echo "''";
 endif;
-?>);">Edit</a></span>
+?>);">Edit</a> <input type="text" class="leaf-order" name="leaf_order_<?=$ancestor; ?>" value="<?=($i + 1); ?>" size="2" /></span>
                 <a href="<?=$branch['href']; ?>" target="_blank"<?=($branch['href'] == '#') ? ' onclick="return false;"' : null; ?>><?=$branch['name']; ?></a>
             </div>
 <?php

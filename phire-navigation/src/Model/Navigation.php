@@ -361,8 +361,8 @@ class Navigation extends AbstractModel
                     }
                 }
             }
-        // Add nav items
-        } else {
+        // Add/remove nav items
+        } else if ((($post['nav_title'] != '') && ($post['nav_href'] != '')) || (isset($post['rm_nav']) && (count($post['rm_nav']) > 0))) {
             if (($post['nav_title'] != '') && ($post['nav_href'] != '')) {
                 if ($post['nav_action_object'] != '----') {
                     $objectAry = explode('_', $post['nav_action_object']);
@@ -432,6 +432,56 @@ class Navigation extends AbstractModel
                             } else {
                                 $node = &$node['children'][$index];
                             }
+                        }
+                    }
+                }
+            }
+        // Order the nav items
+        } else {
+            $order = [];
+            foreach ($post as $key => $value) {
+                if (strpos($key, 'leaf_order_') !== false) {
+                    $leaf = substr($key, 11);
+                    if (strpos($leaf, '_') !== false) {
+                        $leaf = substr($leaf, 0, -1) . '*';
+                    } else {
+                        $leaf = '_';
+                    }
+                    if (!isset($order[$leaf])) {
+                        $order[$leaf] = [];
+                    }
+                    $order[$leaf][$value - 1] = count($order[$leaf]);
+                }
+            }
+
+            foreach ($order as $leaf => $value) {
+                ksort($order[$leaf]);
+            }
+
+            arsort($order, SORT_NUMERIC);
+
+            foreach ($order as $leaf => $value) {
+                if ($leaf == '_') {
+                    $newTree = [];
+                    foreach ($order[$leaf] as $key) {
+                        $newTree[] = $currentTree[$key];
+                    }
+                    $currentTree = $newTree;
+                } else {
+                    $leafAry = explode('_', $leaf);
+                    array_pop($leafAry);
+                    foreach ($leafAry as $key => $index) {
+                        if ($key == 0) {
+                            $node = &$currentTree[$index];
+                        } else {
+                            $node = &$node['children'][$index];
+                        }
+                        if ($key == count($leafAry) - 1) {
+                            $newNode = [];
+                            foreach ($order[$leaf] as $key) {
+                                $newNode[] = &$node['children'][$key];
+                            }
+                            $node['children'] = $newNode;
                         }
                     }
                 }

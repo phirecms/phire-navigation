@@ -418,7 +418,6 @@ class Navigation extends AbstractModel
             if (isset($post['rm_nav']) && (count($post['rm_nav']) > 0)) {
                 foreach ($post['rm_nav'] as $object) {
                     $objectAry = explode('_', $object);
-                    //$node      = [];
                     foreach ($objectAry as $key => $index) {
                         if ($key == 0) {
                             if ($key == (count($objectAry) - 1)) {
@@ -433,6 +432,9 @@ class Navigation extends AbstractModel
                                 $node = &$node['children'][$index];
                             }
                         }
+                    }
+                    if (isset($node) && isset($node['children'])) {
+                        $node['children'] = array_values($node['children']);
                     }
                 }
             }
@@ -488,6 +490,8 @@ class Navigation extends AbstractModel
             }
         }
 
+        // Node clean up
+        $currentTree = array_values($currentTree);
         return serialize($currentTree);
     }
 

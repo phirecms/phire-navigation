@@ -433,9 +433,9 @@ class Navigation extends AbstractModel
                             }
                         }
                     }
-                    if (isset($node) && isset($node['children'])) {
-                        $node['children'] = array_values($node['children']);
-                    }
+                }
+                if (isset($node) && isset($node['children'])) {
+                    $node['children'] = array_values($node['children']);
                 }
             }
         // Order the nav items

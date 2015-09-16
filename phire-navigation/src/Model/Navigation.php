@@ -418,7 +418,7 @@ class Navigation extends AbstractModel
             if (isset($post['rm_nav']) && (count($post['rm_nav']) > 0)) {
                 foreach ($post['rm_nav'] as $object) {
                     $objectAry = explode('_', $object);
-                    $node      = [];
+                    //$node      = [];
                     foreach ($objectAry as $key => $index) {
                         if ($key == 0) {
                             if ($key == (count($objectAry) - 1)) {

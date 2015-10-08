@@ -332,6 +332,17 @@ class Navigation extends AbstractModel
                             }
                             $currentTree[$index]['attributes'] = ($post['nav_edit_target'] == 'false') ?
                                 ['onclick' => 'return false;'] : ['target' => $post['nav_edit_target']];
+                        } else {
+                            if (isset($currentTree[$index]['attributes'])) {
+                                if (isset($currentTree[$index]['attributes']['onclick'])) {
+                                    unset($currentTree[$index]['attributes']['onclick']);
+                                } else if (isset($currentTree[$index]['attributes']['target'])) {
+                                    unset($currentTree[$index]['attributes']['target']);
+                                }
+                            }
+                            if (count($currentTree[$index]['attributes']) == 0) {
+                                unset($currentTree[$index]['attributes']);
+                            }
                         }
                     } else {
                         $node = &$currentTree[$index];
@@ -355,6 +366,17 @@ class Navigation extends AbstractModel
                             }
                             $node['children'][$index]['attributes'] = ($post['nav_edit_target'] == 'false') ?
                                 ['onclick' => 'return false;'] : ['target' => $post['nav_edit_target']];
+                        } else {
+                            if (isset($node['children'][$index]['attributes'])) {
+                                if (isset($node['children'][$index]['attributes']['onclick'])) {
+                                    unset($node['children'][$index]['attributes']['onclick']);
+                                } else if (isset($node['children'][$index]['attributes']['target'])) {
+                                    unset($node['children'][$index]['attributes']['target']);
+                                }
+                            }
+                            if (count($node['children'][$index]['attributes']) == 0) {
+                                unset($node['children'][$index]['attributes']);
+                            }
                         }
                     } else {
                         $node = &$node['children'][$index];

@@ -60,8 +60,8 @@ class Navigation extends AbstractModel
 
             $types = \Phire\Content\Table\ContentTypes::findAll();
             foreach ($types->rows() as $type) {
-                $content = new \Phire\Content\Model\Content(['tid' => $type->id]);
-                $content->getAll('id');
+                $content = new \Phire\Content\Model\Content();
+                $content->getAll($type->id, 'id');
                 $options['content'][$type->name] = $content->getFlatMap();
             }
         }
@@ -219,8 +219,8 @@ class Navigation extends AbstractModel
             unset($sess->lastSortOrder);
             unset($sess->lastPage);
 
-            $content    = new \Phire\Content\Model\Content(['tid' => $id]);
-            $contentAry = $content->getAll('id');
+            $content    = new \Phire\Content\Model\Content();
+            $contentAry = $content->getAll($id, 'id');
             $cat        = false;
         }
 

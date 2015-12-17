@@ -83,7 +83,7 @@
 #nav-manage-header input[type=text] {
     margin: 0 10px 0 0;
     padding: 4px;
-    height: 18px;
+    height: 22px;
     font-size: 0.9em;
 }
 
@@ -146,6 +146,7 @@ a.nav-close-link {
 #navigation-manage-edit-form {
     margin: 0;
     padding: 0;
+    height: 250px;
 }
 #navigation-manage-edit-form > div {
     margin: 0;
@@ -153,25 +154,27 @@ a.nav-close-link {
 }
 
 #navigation-manage-edit-form > div:last-child {
-    margin: 10px 0 0 0;
-    padding: 12px 0 0 0;
+    margin: 8px 0 0 0;
+    padding: 10px 0 0 0;
     border-top: solid 1px #ccc;
 }
 
 #navigation-manage-edit-form input[type=text] {
     margin: 0 8px 0 0;
     padding: 3px;
-    height: 18px;
+    height: 23px;
     font-size: 1.0em;
     width: 310px;
 }
 
 #navigation-manage-edit-form select {
-    height: 26px;
+    margin-top: 7px;
+    height: 31px;
 }
 
 #navigation-manage-edit-form > div:last-child > input[type=submit] {
     margin: 0 12px 0 0;
+    padding: 6px 8px 6px 8px;
     width: 75px;
     float: right;
 }

@@ -216,6 +216,13 @@ class Navigation
                 } else if (isset($branch['acl'])) {
                     unset($branch['acl']);
                 }
+            } else {
+                $c = ($type == 'category') ? \Phire\Categories\Table\Categories::findById($branch['id']) :
+                    \Phire\Content\Table\Content::findById($branch['id']);
+
+                if (isset($c->id)) {
+                    $branch['href'] = $c->uri;
+                }
             }
             if (isset($branch['children']) && (count($branch['children']) > 0)) {
                 self::traverseTree($branch['children'], $id, $title, $uri, $type, $roles, ($depth + 1));

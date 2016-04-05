@@ -403,7 +403,7 @@ class Navigation extends AbstractModel
                     ]);
                     $item->save();
 
-                    $this->createNavChildren($parentId, $navId, $c, ($depth + 1), $cat);
+                    $this->createNavChildren($item->id, $navId, $c, ($depth + 1), $cat);
                 }
             }
         }

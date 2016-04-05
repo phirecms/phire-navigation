@@ -13,7 +13,7 @@ function printNavOptions($tree, $depth = 0, $ancestor = null) {
                 $ancestor .= '_' . $i;
             endif;
         endif; ?>
-                    <option value="<?=$ancestor; ?>"><?=str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', $depth) . (($depth > 0) ? '&rarr; ' : '') . $branch['name']; ?></option>
+                    <option value="id_<?=$branch['id']; ?>_<?=$ancestor; ?>"><?=str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', $depth) . (($depth > 0) ? '&rarr; ' : '') . $branch['name']; ?></option>
 <?php
         if (count($branch['children']) > 0):
             printNavOptions($branch['children'], $depth + 1, $ancestor);
@@ -35,8 +35,8 @@ function printNavTree($tree, $depth = 0, $ancestor = null) {
             endif;
         endif; ?>
             <div class="nav-branch" style="width: <?='calc(' . (100 - (10 * $depth)); ?>% - 22px);">
-                <span class="rm-nav-span">Remove?</span><input class="rm-nav-checkbox" type="checkbox" name="rm_nav[]" value="<?=$ancestor; ?>" />
-                <span class="edit-nav-span"><a class="small-link" href="#" onclick="return phire.editNavItem('<?=$ancestor; ?>', '<?=addslashes(htmlentities($branch['name'], ENT_COMPAT, 'UTF-8')); ?>', '<?=$branch['href']; ?>', <?php
+                <span class="rm-nav-span">Remove?</span><input class="rm-nav-checkbox" type="checkbox" name="rm_nav[]" value="<?=$branch['id'] . '_' . $ancestor; ?>" />
+                <span class="edit-nav-span"><a class="small-link" href="#" onclick="return phire.editNavItem('<?=$branch['id'] . '_' . $ancestor; ?>', '<?=addslashes(htmlentities($branch['name'], ENT_COMPAT, 'UTF-8')); ?>', '<?=$branch['href']; ?>', <?php
 if (isset($branch['attributes'])):
     if (isset($branch['attributes']['onclick'])):
         echo "'false'";
@@ -49,7 +49,7 @@ else:
     echo "''";
 endif;
 ?>);">Edit</a></span>
-                <input type="text" class="leaf-order" name="leaf_order_<?=$ancestor; ?>" value="<?=($i + 1); ?>" size="2" /> <a href="<?=$branch['href']; ?>" target="_blank"<?=($branch['href'] == '#') ? ' onclick="return false;"' : null; ?>><?=$branch['name']; ?></a>
+                <input type="text" class="leaf-order" name="leaf_order_<?=$branch['id']; ?>_<?=$ancestor; ?>" value="<?=$branch['order']; ?>" size="2" /> <a href="<?=$branch['href']; ?>" target="_blank"<?=($branch['href'] == '#') ? ' onclick="return false;"' : null; ?>><?=$branch['name']; ?></a>
             </div>
 <?php
         if (count($branch['children']) > 0):

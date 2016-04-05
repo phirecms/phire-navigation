@@ -21,7 +21,7 @@
             </div>
             <div>
                 <select name="nav_from" id="nav_from" onchange="phire.changeNavItem();" tabindex="5">
-                    <option value="----">[ Add Item From ]</option>
+                    <option value="----">[ Add Item ]</option>
 <?php foreach ($selectFrom['content'] as $type => $content): ?>
                     <optgroup label="<?=$type; ?>">
 <?php foreach ($content as $c): ?>
@@ -37,12 +37,8 @@
                     </optgroup>
 <?php endif; ?>
                 </select>
-                <select name="nav_action" tabindex="6">
-                    <option value="append">[ Append To ]</option>
-                    <option value="prepend">[ Prepend To ]</option>
-                </select>
                 <select name="nav_action_object" tabindex="7">
-                    <option value="----">----</option>
+                    <option value="----">[ To ]</option>
 <?php if (count($tree) > 0): ?>
 <?php printNavOptions($tree); ?>
 <?php endif; ?>

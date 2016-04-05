@@ -4,7 +4,6 @@ namespace Phire\Navigation\Model;
 
 use Phire\Navigation\Table;
 use Phire\Model\AbstractModel;
-use Pop\Nav\Nav;
 use Pop\Web\Session;
 
 class Navigation extends AbstractModel
@@ -33,7 +32,7 @@ class Navigation extends AbstractModel
         $navigation = Table\Navigation::findById($id);
         if (isset($navigation->id)) {
             $data         = $navigation->getColumns();
-            $data['tree'] = (null !== $data['tree']) ? unserialize($data['tree']) : [];
+            $data['tree'] = $this->getTree($navigation->id);
             $this->data = array_merge($this->data, $data);
         }
     }
@@ -76,6 +75,64 @@ class Navigation extends AbstractModel
     }
 
     /**
+     * Get navigation tree
+     *
+     * @param int $id
+     * @return array
+     */
+    public function getTree($id)
+    {
+        $tree = [];
+
+        $parents = Table\NavigationItems::findBy(['navigation_id' => $id, 'parent_id' => null], ['order' => 'order ASC']);
+        foreach ($parents->rows() as $parent) {
+            $branch = [
+                'id'         => $parent->id,
+                'item_id'    => $parent->item_id,
+                'type'       => $parent->type,
+                'name'       => $parent->name,
+                'href'       => $parent->href,
+                'order'      => $parent->order,
+                'attributes' => (null !== $parent->attributes) ? unserialize($parent->attributes) : [],
+                'children'   => $this->getBranchChildren($id, $parent->id)
+            ];
+
+            $tree[] = $branch;
+        }
+
+        return $tree;
+    }
+
+    /**
+     * Get navigation tree branch children
+     *
+     * @param int $id
+     * @return array
+     */
+    public function getBranchChildren($id, $parentId)
+    {
+        $branchChildren = [];
+        $children       = Table\NavigationItems::findBy(['navigation_id' => $id, 'parent_id' => $parentId], ['order' => 'order ASC']);
+
+        foreach ($children->rows() as $child) {
+            $branch = [
+                'id'         => $child->id,
+                'item_id'    => $child->item_id,
+                'type'       => $child->type,
+                'name'       => $child->name,
+                'href'       => $child->href,
+                'order'      => $child->order,
+                'attributes' => (null !== $child->attributes) ? unserialize($child->attributes) : [],
+                'children'   => $this->getBranchChildren($id, $child->id)
+            ];
+
+            $branchChildren[] = $branch;
+        }
+
+        return $branchChildren;
+    }
+
+    /**
      * Save new navigation
      *
      * @param  array $fields
@@ -99,11 +156,13 @@ class Navigation extends AbstractModel
             'child_attributes'  => (isset($fields['child_attributes']) ? $fields['child_attributes'] : null),
             'on_class'          => (isset($fields['on_class']) ? $fields['on_class'] : null),
             'off_class'         => (isset($fields['off_class']) ? $fields['off_class'] : null),
-            'indent'            => (int)$fields['indent'],
-            'tree'              => (($fields['create_nav_from'] != '----') ?
-                $this->createNavFrom($fields['create_nav_from']) : null)
+            'indent'            => (int)$fields['indent']
         ]);
         $navigation->save();
+
+        if ($fields['create_nav_from'] != '----') {
+            $this->createNavFrom($fields['create_nav_from'], $navigation->id);
+        }
 
         $this->data = array_merge($this->data, $navigation->getColumns());
     }
@@ -134,29 +193,103 @@ class Navigation extends AbstractModel
             $navigation->on_class          = (isset($fields['on_class']) ? $fields['on_class'] : null);
             $navigation->off_class         = (isset($fields['off_class']) ? $fields['off_class'] : null);
             $navigation->indent            = (int)$fields['indent'];
-            $navigation->tree              = (($fields['create_nav_from'] != '----') ?
-                $this->createNavFrom($fields['create_nav_from']) : $navigation->tree);
 
             $navigation->save();
+
+            if ($fields['create_nav_from'] != '----') {
+                $this->createNavFrom($fields['create_nav_from'], $navigation->id);
+            }
 
             $this->data = array_merge($this->data, $navigation->getColumns());
         }
     }
 
     /**
-     * Save the new navigation tree
+     * Save the new navigation items
      *
      * @param  array $post
      * @return void
      */
-    public function saveTree(array $post)
+    public function saveItems(array $post)
     {
         $navigation = Table\Navigation::findById((int)$post['id']);
         if (isset($navigation->id)) {
-            $currentTree      = (null !== $navigation->tree) ? unserialize($navigation->tree) : [];
-            $navigation->tree = $this->modifyTree($currentTree, $post);
-            $navigation->save();
-            $this->data = array_merge($this->data, $navigation->getColumns());
+            // Edit a nav item
+            if (isset($post['branch_to_edit'])) {
+                $id      = substr($post['branch_to_edit'], 0, strpos($post['branch_to_edit'], '_'));
+                $attribs = [];
+                if ($post['nav_edit_target'] != '----') {
+                    $attribs = ($post['nav_edit_target'] == 'false') ?
+                        ['onclick' => 'return false;'] : ['target' => $post['nav_edit_target']];
+                }
+
+                $item = Table\NavigationItems::findById((int)$id);
+                if (isset($item->id)) {
+                    $item->name       = stripslashes(html_entity_decode($post['nav_edit_title'], ENT_COMPAT, 'UTF-8'));
+                    $item->href       = $post['nav_edit_href'];
+                    $item->attributes = serialize($attribs);
+                    $item->save();
+                }
+            // Add nav item
+            } else if (isset($post['nav_title']) && ($post['nav_title'] != '') && ($post['nav_href'] != '')) {
+                $attribs = [];
+                if ($post['nav_target'] != '----') {
+                    $attribs = ($post['nav_target'] == 'false') ?
+                        ['onclick' => 'return false;'] : ['target' => $post['nav_target']];
+                }
+
+                if ($post['nav_action_object'] == '----') {
+                    $item = new Table\NavigationItems([
+                        'navigation_id' => $navigation->id,
+                        'parent_id'  => null,
+                        'item_id'    => (!empty($post['nav_id']) ? $post['nav_id'] : null),
+                        'type'       => (!empty($post['nav_type']) ? $post['nav_type'] : null),
+                        'name'       => $post['nav_title'],
+                        'href'       => $post['nav_href'],
+                        'attributes' => serialize($attribs),
+                        'order'      => 0
+                    ]);
+                    $item->save();
+                } else {
+                    $id = substr($post['nav_action_object'], (strpos($post['nav_action_object'], '_') + 1));
+                    $id = substr($id, 0, strpos($id, '_'));
+                    $item = new Table\NavigationItems([
+                        'navigation_id' => $navigation->id,
+                        'parent_id'  => $id,
+                        'item_id'    => (!empty($post['nav_id']) ? $post['nav_id'] : null),
+                        'type'       => (!empty($post['nav_type']) ? $post['nav_type'] : null),
+                        'name'       => $post['nav_title'],
+                        'href'       => $post['nav_href'],
+                        'attributes' => serialize($attribs),
+                        'order'      => 0
+                    ]);
+                    $item->save();
+                }
+
+            }
+
+            // Order nav items
+            foreach ($post as $key => $value) {
+                if (substr($key, 0, 11) == 'leaf_order_') {
+                    $id = substr($key, 11);
+                    $id = substr($id, 0, strpos($id, '_'));
+                    $item = Table\NavigationItems::findById((int)$id);
+                    if (isset($item->id)) {
+                        $item->order = (int)$value;
+                        $item->save();
+                    }
+                }
+            }
+
+            // Remove nav items
+            if (isset($post['rm_nav']) && (count($post['rm_nav']) > 0)) {
+                foreach ($post['rm_nav'] as $navId) {
+                    $item = Table\NavigationItems::findById((int)$navId);
+                    if (isset($item->id)) {
+                        $item->delete();
+                    }
+                }
+            }
         }
     }
 
@@ -202,14 +335,13 @@ class Navigation extends AbstractModel
     /**
      * Create nav tree from content type
      *
-     * @param  int $id
-     * @return mixed
+     * @param  mixed $type
+     * @param  int   $navId
+     * @return void
      */
-    protected function createNavFrom($id)
+    protected function createNavFrom($type, $navId)
     {
-        $tree = [];
-
-        if ($id == 'categories') {
+        if ($type == 'categories') {
             $category   = new \Phire\Categories\Model\Category();
             $contentAry = $category->getAll();
             $cat        = true;
@@ -220,301 +352,61 @@ class Navigation extends AbstractModel
             unset($sess->lastPage);
 
             $content    = new \Phire\Content\Model\Content();
-            $contentAry = $content->getAll($id, 'id');
+            $contentAry = $content->getAll($type, 'id');
             $cat        = false;
         }
 
-
         foreach ($contentAry as $c) {
-            $branch = [
-                'id'       => $c->id,
-                'type'     => ($cat) ? 'category' : 'content',
-                'name'     => $c->title,
-                'href'     => $c->uri,
-                'children' => ((isset($c->status) && $c->status == 1) || !isset($c->status)) ?
-                    $this->getNavChildren($c, 0, $cat) : []
-            ];
-
-            if (isset($c->roles)) {
-                $roles = unserialize($c->roles);
-                if (count($roles) > 0) {
-                    $branch['acl'] = [
-                        'resource' => 'content-' . $c->id
-                    ];
-                }
-            }
+            $item = new Table\NavigationItems([
+                'navigation_id' => $navId,
+                'item_id'       => $c->id,
+                'type'          => ($cat) ? 'category' : 'content',
+                'name'          => $c->title,
+                'href'          => ($cat) ? '/category' . $c->uri : $c->uri,
+                'order'         => 0
+            ]);
+            $item->save();
 
             if ((isset($c->status) && $c->status == 1) || !isset($c->status)) {
-                $tree[] = $branch;
+                $this->createNavChildren($item->id, $navId, $c, 0, $cat);
             }
         }
-
-        return serialize($tree);
     }
 
     /**
-     * Get navigation children
+     * Create navigation children
      *
+     * @param  int                $parentId
+     * @param  int                $navId
      * @param  \ArrayObject|array $content
      * @param  int                $depth
      * @param  boolean            $cat
-     * @return array
+     * @return void
      */
-    protected function getNavChildren($content, $depth = 0, $cat = false)
+    protected function createNavChildren($parentId, $navId, $content, $depth = 0, $cat = false)
     {
-        $children = [];
-        $child    = ($cat) ?
+        $child = ($cat) ?
             \Phire\Categories\Table\Categories::findBy(['parent_id' => $content->id], ['order' => 'order ASC']) :
             \Phire\Content\Table\Content::findBy(['parent_id' => $content->id], ['order' => 'order ASC']);
 
         if ($child->hasRows()) {
             foreach ($child->rows() as $c) {
-                $branch = [
-                    'id'       => $c->id,
-                    'type'     => ($cat) ? 'category' : 'content',
-                    'name'     => $c->title,
-                    'href'     => $c->uri,
-                    'children' => ((isset($c->status) && $c->status == 1) || !isset($c->status)) ?
-                        $this->getNavChildren($c, ($depth + 1)) : []
-                ];
-
-                if (isset($c->roles)) {
-                    $roles = unserialize($c->roles);
-                    if (count($roles) > 0) {
-                        $branch['acl'] = [
-                            'resource' => 'content-' . $c->id
-                        ];
-                    }
-                }
-
                 if ((isset($c->status) && $c->status == 1) || !isset($c->status)) {
-                    $children[] = $branch;
+                    $item = new Table\NavigationItems([
+                        'navigation_id' => $navId,
+                        'parent_id'     => $parentId,
+                        'item_id'       => $c->id,
+                        'type'          => ($cat) ? 'category' : 'content',
+                        'name'          => $c->title,
+                        'href'          => ($cat) ? '/category' . $c->uri : $c->uri,
+                        'order'         => 0
+                    ]);
+                    $item->save();
+
+                    $this->createNavChildren($parentId, $navId, $c, ($depth + 1), $cat);
                 }
             }
         }
-
-        return $children;
-    }
-
-    /**
-     * Modify nav tree
-     *
-     * @param  array $currentTree
-     * @param  array $post
-     * @return mixed
-     */
-    protected function modifyTree(array $currentTree, array $post)
-    {
-        // Edit nav items
-        if (isset($post['action_edit']) && ($post['action_edit'])) {
-            $objectAry = explode('_', $post['branch_to_edit']);
-            $node      = [];
-
-            $post['nav_edit_title'] = stripslashes(html_entity_decode($post['nav_edit_title'], ENT_COMPAT, 'UTF-8'));
-
-            foreach ($objectAry as $key => $index) {
-                if ($key == 0) {
-                    if ($key == (count($objectAry) - 1)) {
-                        if (isset($currentTree[$index]['name'])) {
-                            $currentTree[$index]['name'] = $post['nav_edit_title'];
-                        }
-                        if (isset($currentTree[$index]['href'])) {
-                            $currentTree[$index]['href'] = $post['nav_edit_href'];
-                        }
-                        if ($post['nav_edit_target'] != '----') {
-                            if (isset($currentTree[$index]['attributes'])) {
-                                if (isset($currentTree[$index]['attributes']['onclick'])) {
-                                    unset($currentTree[$index]['attributes']['onclick']);
-                                }
-                                if (isset($currentTree[$index]['attributes']['target'])) {
-                                    unset($currentTree[$index]['attributes']['target']);
-                                }
-                            }
-                            $currentTree[$index]['attributes'] = ($post['nav_edit_target'] == 'false') ?
-                                ['onclick' => 'return false;'] : ['target' => $post['nav_edit_target']];
-                        } else {
-                            if (isset($currentTree[$index]['attributes'])) {
-                                if (isset($currentTree[$index]['attributes']['onclick'])) {
-                                    unset($currentTree[$index]['attributes']['onclick']);
-                                } else if (isset($currentTree[$index]['attributes']['target'])) {
-                                    unset($currentTree[$index]['attributes']['target']);
-                                }
-                            }
-                            if (count($currentTree[$index]['attributes']) == 0) {
-                                unset($currentTree[$index]['attributes']);
-                            }
-                        }
-                    } else {
-                        $node = &$currentTree[$index];
-                    }
-                } else if (isset($node['children']) && isset($node['children'][$index])) {
-                    if ($key == (count($objectAry) - 1)) {
-                        if (isset($node['children'][$index]['name'])) {
-                            $node['children'][$index]['name'] = $post['nav_edit_title'];
-                        }
-                        if (isset($node['children'][$index]['href'])) {
-                            $node['children'][$index]['href'] = $post['nav_edit_href'];
-                        }
-                        if ($post['nav_edit_target'] != '----') {
-                            if (isset($node['children'][$index]['attributes'])) {
-                                if (isset($node['children'][$index]['attributes']['onclick'])) {
-                                    unset($node['children'][$index]['attributes']['onclick']);
-                                }
-                                if (isset($node['children'][$index]['attributes']['target'])) {
-                                    unset($node['children'][$index]['attributes']['target']);
-                                }
-                            }
-                            $node['children'][$index]['attributes'] = ($post['nav_edit_target'] == 'false') ?
-                                ['onclick' => 'return false;'] : ['target' => $post['nav_edit_target']];
-                        } else {
-                            if (isset($node['children'][$index]['attributes'])) {
-                                if (isset($node['children'][$index]['attributes']['onclick'])) {
-                                    unset($node['children'][$index]['attributes']['onclick']);
-                                } else if (isset($node['children'][$index]['attributes']['target'])) {
-                                    unset($node['children'][$index]['attributes']['target']);
-                                }
-                            }
-                            if (count($node['children'][$index]['attributes']) == 0) {
-                                unset($node['children'][$index]['attributes']);
-                            }
-                        }
-                    } else {
-                        $node = &$node['children'][$index];
-                    }
-                }
-            }
-        // Add/remove nav items
-        } else if ((($post['nav_title'] != '') && ($post['nav_href'] != '')) || (isset($post['rm_nav']) && (count($post['rm_nav']) > 0))) {
-            if (($post['nav_title'] != '') && ($post['nav_href'] != '')) {
-                if ($post['nav_action_object'] != '----') {
-                    $objectAry = explode('_', $post['nav_action_object']);
-                    $node      = [];
-                    foreach ($objectAry as $key => $index) {
-                        if ($key == 0) {
-                            $node = &$currentTree[$index];
-                        } else if (isset($node['children']) && isset($node['children'][$index])) {
-                            $node = &$node['children'][$index];
-                        }
-                    }
-
-                    $leaf = [
-                        'id'   => $post['nav_id'],
-                        'type' => $post['nav_type'],
-                        'name' => $post['nav_title'],
-                        'href' => $post['nav_href'],
-                        'children' => []
-                    ];
-                    if ($post['nav_target'] != '----') {
-                        $leaf['attributes'] = ($post['nav_target'] == 'false') ?
-                            ['onclick' => 'return false;'] : ['target' => $post['nav_target']];
-                    }
-                    if (!isset($node['children'])) {
-                        $node['children'] = [];
-                    }
-                    if ($post['nav_action'] == 'prepend') {
-                        $node['children'] = array_merge([$leaf], $node['children']);
-                    } else {
-                        $node['children'][] = $leaf;
-                    }
-                } else {
-                    $leaf = [
-                        'id'   => $post['nav_id'],
-                        'type' => $post['nav_type'],
-                        'name' => $post['nav_title'],
-                        'href' => $post['nav_href'],
-                        'children' => []
-                    ];
-                    if ($post['nav_target'] != '----') {
-                        $leaf['attributes'] = ($post['nav_target'] == 'false') ?
-                            ['onclick' => 'return false;'] : ['target' => $post['nav_target']];
-                    }
-                    if ($post['nav_action'] == 'prepend') {
-                        $currentTree = array_merge([$leaf], $currentTree);
-                    } else {
-                        $currentTree[] = $leaf;
-                    }
-                }
-            }
-
-            // Remove nav items
-            if (isset($post['rm_nav']) && (count($post['rm_nav']) > 0)) {
-                foreach ($post['rm_nav'] as $object) {
-                    $objectAry = explode('_', $object);
-                    foreach ($objectAry as $key => $index) {
-                        if ($key == 0) {
-                            if ($key == (count($objectAry) - 1)) {
-                                unset($currentTree[$index]);
-                            } else {
-                                $node = &$currentTree[$index];
-                            }
-                        } else if (isset($node['children']) && isset($node['children'][$index])) {
-                            if ($key == (count($objectAry) - 1)) {
-                                unset($node['children'][$index]);
-                            } else {
-                                $node = &$node['children'][$index];
-                            }
-                        }
-                    }
-                }
-                if (isset($node) && isset($node['children'])) {
-                    $node['children'] = array_values($node['children']);
-                }
-            }
-        // Order the nav items
-        } else {
-            $order = [];
-            foreach ($post as $key => $value) {
-                if (strpos($key, 'leaf_order_') !== false) {
-                    $leaf = substr($key, 11);
-                    if (strpos($leaf, '_') !== false) {
-                        $leaf = substr($leaf, 0, -1) . '*';
-                    } else {
-                        $leaf = '_';
-                    }
-                    if (!isset($order[$leaf])) {
-                        $order[$leaf] = [];
-                    }
-                    $order[$leaf][$value - 1] = count($order[$leaf]);
-                }
-            }
-
-            foreach ($order as $leaf => $value) {
-                ksort($order[$leaf]);
-            }
-
-            arsort($order, SORT_NUMERIC);
-
-            foreach ($order as $leaf => $value) {
-                if ($leaf == '_') {
-                    $newTree = [];
-                    foreach ($order[$leaf] as $key) {
-                        $newTree[] = $currentTree[$key];
-                    }
-                    $currentTree = $newTree;
-                } else {
-                    $leafAry = explode('_', $leaf);
-                    array_pop($leafAry);
-                    foreach ($leafAry as $key => $index) {
-                        if ($key == 0) {
-                            $node = &$currentTree[$index];
-                        } else {
-                            $node = &$node['children'][$index];
-                        }
-                        if ($key == count($leafAry) - 1) {
-                            $newNode = [];
-                            foreach ($order[$leaf] as $key) {
-                                $newNode[] = &$node['children'][$key];
-                            }
-                            $node['children'] = $newNode;
-                        }
-                    }
-                }
-            }
-        }
-
-        // Node clean up
-        $currentTree = array_values($currentTree);
-        return serialize($currentTree);
     }
 
 }

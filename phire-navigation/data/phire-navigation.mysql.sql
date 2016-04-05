@@ -30,10 +30,30 @@ CREATE TABLE IF NOT EXISTS `[{prefix}]navigation` (
   `on_class` varchar(255),
   `off_class` varchar(255),
   `indent` varchar(255),
-  `tree` text,
   PRIMARY KEY (`id`),
   INDEX `navigation_title` (`title`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=7001;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `navigation_items`
+--
+
+CREATE TABLE IF NOT EXISTS `[{prefix}]navigation_items` (
+  `id` int(16) NOT NULL AUTO_INCREMENT,
+  `navigation_id` int(16) NOT NULL,
+  `parent_id` int(16),
+  `item_id` int(16),
+  `type` varchar(255),
+  `name` text,
+  `href` text,
+  `attributes` text,
+  `order` int(16),
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_navigation` FOREIGN KEY (`navigation_id`) REFERENCES `[{prefix}]navigation` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_nav_item_parent_id` FOREIGN KEY (`parent_id`) REFERENCES `[{prefix}]navigation_items` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8001;
 
 -- --------------------------------------------------------
 

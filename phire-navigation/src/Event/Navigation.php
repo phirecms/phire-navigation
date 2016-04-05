@@ -26,18 +26,14 @@ class Navigation
             $title = $controller->view()->form->title;
             $uri   = $controller->view()->form->uri;
             $id    = $controller->view()->id;
-            $roles = (isset($_POST['roles']) ? $_POST['roles'] : null);
 
-            $navigation = Table\Navigation::findAll();
-            foreach ($navigation->rows() as $nav) {
-                $tree = (null !== $nav->tree) ? unserialize($nav->tree) : [];
-                if (count($tree) > 0) {
-                    self::traverseTree($tree, $id, $title, $uri, 'content', $roles);
-                    $revisedNav = Table\Navigation::findById($nav->id);
-                    if (isset($revisedNav->id)) {
-                        $revisedNav->tree = serialize($tree);
-                        $revisedNav->save();
-                    }
+            $items = Table\NavigationItems::findBy(['item_id' => $id]);
+            foreach ($items->rows() as $item) {
+                $i = Table\NavigationItems::findById($item->id);
+                if (isset($i->id)) {
+                    $i->name = $title;
+                    $i->href = $uri;
+                    $i->save();
                 }
             }
         } else if (($_POST) && $application->isRegistered('phire-categories') && ($controller->hasView()) && (null !== $controller->view()->id) &&
@@ -46,16 +42,13 @@ class Navigation
             $uri   = '/category' . $controller->view()->form->uri;
             $id    = $controller->view()->id;
 
-            $navigation = Table\Navigation::findAll();
-            foreach ($navigation->rows() as $nav) {
-                $tree = (null !== $nav->tree) ? unserialize($nav->tree) : [];
-                if (count($tree) > 0) {
-                    self::traverseTree($tree, $id, $title, $uri, 'category');
-                    $revisedNav = Table\Navigation::findById($nav->id);
-                    if (isset($revisedNav->id)) {
-                        $revisedNav->tree = serialize($tree);
-                        $revisedNav->save();
-                    }
+            $items = Table\NavigationItems::findBy(['item_id' => $id]);
+            foreach ($items->rows() as $item) {
+                $i = Table\NavigationItems::findById($item->id);
+                if (isset($i->id)) {
+                    $i->name = $title;
+                    $i->href = $uri;
+                    $i->save();
                 }
             }
         }
@@ -73,9 +66,10 @@ class Navigation
         if ((($application->isRegistered('phire-categories') && ($controller instanceof \Phire\Categories\Controller\IndexController)) ||
             (($application->isRegistered('phire-content') && ($controller instanceof \Phire\Content\Controller\IndexController))) &&
             ($controller->hasView()))) {
+
             $navigation = Table\Navigation::findAll();
             foreach ($navigation->rows() as $nav) {
-                $tree   = (null !== $nav->tree) ? unserialize($nav->tree) : [];
+                $tree   = (new Model\Navigation())->getTree($nav->id);
                 $slug   = Slug::filter($nav->title);
                 $name   = str_replace('-', '_', $slug);
                 $topId  = ((empty($nav->top_id)) ? $slug : $nav->top_id);
@@ -175,57 +169,13 @@ class Navigation
                 }
 
                 if ($application->isRegistered('phire-content')) {
-                    self::checkTreeStatus($tree);
+                    $sess   = $application->services()->get('session');
+                    $roleId = (isset($sess->user) && isset($sess->user->role_id)) ? $sess->user->role_id : null;
+                    self::checkTreeStatus($tree, $roleId);
                 }
 
                 $navObject = new Nav($tree, $config);
-                if ($application->services()->isAvailable('acl')) {
-                    $sess = $application->services()->get('session');
-                    $navObject->setAcl($application->services()->get('acl'));
-                    if (isset($sess->user) && isset($sess->user->role)) {
-                        $navObject->setRole($application->services()->get('acl')->getRole($sess->user->role));
-                    }
-                }
                 $controller->view()->set($name, $navObject);
-            }
-        }
-    }
-
-    /**
-     * Traverse tree for updates
-     *
-     * @param  array  $tree
-     * @param  int    $id
-     * @param  string $title
-     * @param  string $uri
-     * @param  string $type
-     * @param  mixed  $roles
-     * @param  int    $depth
-     * @return void
-     */
-    public static function traverseTree(&$tree, $id, $title, $uri, $type, $roles = null, $depth = 0)
-    {
-        foreach ($tree as &$branch) {
-            if (isset($branch['id']) && isset($branch['type']) && ($branch['id'] == $id) && ($branch['type'] == $type)) {
-                $branch['name'] = $title;
-                $branch['href'] = $uri;
-                if ((null !== $roles) && is_array($roles) && (count($roles) > 0)) {
-                    $branch['acl'] = [
-                        'resource' => 'content-' . $id
-                    ];
-                } else if (isset($branch['acl'])) {
-                    unset($branch['acl']);
-                }
-            } else {
-                $c = ($type == 'category') ? \Phire\Categories\Table\Categories::findById($branch['id']) :
-                    \Phire\Content\Table\Content::findById($branch['id']);
-
-                if (isset($c->id)) {
-                    $branch['href'] = $c->uri;
-                }
-            }
-            if (isset($branch['children']) && (count($branch['children']) > 0)) {
-                self::traverseTree($branch['children'], $id, $title, $uri, $type, $roles, ($depth + 1));
             }
         }
     }
@@ -234,20 +184,28 @@ class Navigation
      * Check tree for status
      *
      * @param  array  $tree
+     * @param  int    $roleId
      * @param  int    $depth
      * @return void
      */
-    public static function checkTreeStatus(&$tree, $depth = 0)
+    public static function checkTreeStatus(&$tree, $roleId = null, $depth = 0)
     {
         foreach ($tree as $i => &$branch) {
-            if (isset($branch['id']) && isset($branch['type']) && ($branch['type'] == 'content')) {
-                $content = \Phire\Content\Table\Content::findById($branch['id']);
-                if (isset($content->id) && ((int)$content->status != 1)) {
+            if (isset($branch['item_id']) && isset($branch['type']) && ($branch['type'] == 'content')) {
+                $content = \Phire\Content\Table\Content::findById($branch['item_id']);
+                $allowed = true;
+                if (null !== $content->roles) {
+                    $roles = unserialize($content->roles);
+                    if ((count($roles) > 0) && ((null === $roleId) || !in_array($roleId, $roles))) {
+                        $allowed = false;
+                    }
+                }
+                if (isset($content->id) && (((int)$content->status != 1) || (!$allowed))) {
                     unset($tree[$i]);
                 }
             }
             if (isset($branch['children']) && (count($branch['children']) > 0)) {
-                self::checkTreeStatus($branch['children'], ($depth + 1));
+                self::checkTreeStatus($branch['children'], $roleId, ($depth + 1));
             }
         }
     }

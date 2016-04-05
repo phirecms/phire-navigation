@@ -141,7 +141,7 @@ class IndexController extends AbstractController
         }
 
         if ($this->request->isPost()) {
-            $navigation->saveTree($this->request->getPost());
+            $navigation->saveItems($this->request->getPost());
             $this->sess->setRequestValue('saved', true);
             $this->redirect(BASE_PATH . APP_URI . '/navigation/manage/'. $navigation->id);
         } else {

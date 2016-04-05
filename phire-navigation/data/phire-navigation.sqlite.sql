@@ -35,9 +35,31 @@ CREATE TABLE IF NOT EXISTS "[{prefix}]navigation" (
   "on_class" varchar,
   "off_class" varchar,
   "indent" varchar,
-  "tree" text,
   UNIQUE ("id")
 ) ;
 
 INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('[{prefix}]navigation', 7000);
 CREATE INDEX "navigation_title" ON "[{prefix}]navigation" ("title");
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table "navigation_items"
+--
+
+CREATE TABLE IF NOT EXISTS "[{prefix}]navigation_items" (
+  "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  "navigation_id" integer NOT NULL,
+  "parent_id" integer,
+  "item_id" integer,
+  "type" varchar,
+  "name" text,
+  "href" text,
+  "attributes" text,
+  "order" integer,
+  UNIQUE ("id"),
+  CONSTRAINT "fk_navigation" FOREIGN KEY ("navigation_id") REFERENCES "[{prefix}]navigation" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "fk_nav_item_parent_id" FOREIGN KEY ("parent_id") REFERENCES "[{prefix}]navigation_items" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+) ;
+
+INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('[{prefix}]navigation_items', 8000);

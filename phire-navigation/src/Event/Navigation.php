@@ -27,13 +27,17 @@ class Navigation
             $uri   = $controller->view()->form->uri;
             $id    = $controller->view()->id;
 
-            $items = Table\NavigationItems::findBy(['item_id' => $id]);
+            $items = Table\NavigationItems::findAll();
             foreach ($items->rows() as $item) {
-                $i = Table\NavigationItems::findById($item->id);
-                if (isset($i->id)) {
-                    $i->name = $title;
-                    $i->href = $uri;
-                    $i->save();
+                if (($item->type == 'content') && (null !== $item->item_id)) {
+                    $i = \Phire\Content\Table\Content::findById($item->item_id);
+                    if (isset($i->id)) {
+                        $n = Table\NavigationItems::findById($item->id);
+                        if (isset($n->id)) {
+                            $n->href = $i->uri;
+                            $n->save();
+                        }
+                    }
                 }
             }
         } else if (($_POST) && $application->isRegistered('phire-categories') && ($controller->hasView()) && (null !== $controller->view()->id) &&
@@ -42,13 +46,17 @@ class Navigation
             $uri   = '/category' . $controller->view()->form->uri;
             $id    = $controller->view()->id;
 
-            $items = Table\NavigationItems::findBy(['item_id' => $id]);
+            $items = Table\NavigationItems::findAll();
             foreach ($items->rows() as $item) {
-                $i = Table\NavigationItems::findById($item->id);
-                if (isset($i->id)) {
-                    $i->name = $title;
-                    $i->href = $uri;
-                    $i->save();
+                if (($item->type == 'category') && (null !== $item->item_id)) {
+                    $i = \Phire\Categories\Table\Categories::findById($item->item_id);
+                    if (isset($i->id)) {
+                        $n = Table\NavigationItems::findById($item->id);
+                        if (isset($n->id)) {
+                            $n->href = $i->uri;
+                            $n->save();
+                        }
+                    }
                 }
             }
         }

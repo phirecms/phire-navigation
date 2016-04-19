@@ -23,17 +23,14 @@ class Navigation
     {
         if (($_POST) && $application->isRegistered('phire-content') && ($controller->hasView()) && (null !== $controller->view()->id) &&
             (null !== $controller->view()->form) && ($controller->view()->form instanceof \Phire\Content\Form\Content)) {
-            $title = $controller->view()->form->title;
-            $uri   = $controller->view()->form->uri;
-            $id    = $controller->view()->id;
-
-            $items = Table\NavigationItems::findAll();
-            foreach ($items->rows() as $item) {
-                if (($item->type == 'content') && (null !== $item->item_id)) {
+            $navItems = Table\NavigationItems::findBy(['type' => 'content']);
+            foreach ($navItems->rows() as $item) {
+                if (null !== $item->item_id) {
                     $i = \Phire\Content\Table\Content::findById($item->item_id);
                     if (isset($i->id)) {
                         $n = Table\NavigationItems::findById($item->id);
                         if (isset($n->id)) {
+                            $n->name = $i->title;
                             $n->href = $i->uri;
                             $n->save();
                         }
@@ -42,22 +39,34 @@ class Navigation
             }
         } else if (($_POST) && $application->isRegistered('phire-categories') && ($controller->hasView()) && (null !== $controller->view()->id) &&
             (null !== $controller->view()->form) && ($controller->view()->form instanceof \Phire\Categories\Form\Category)) {
-            $title = $controller->view()->form->title;
-            $uri   = '/category' . $controller->view()->form->uri;
-            $id    = $controller->view()->id;
-
-            $items = Table\NavigationItems::findAll();
-            foreach ($items->rows() as $item) {
-                if (($item->type == 'category') && (null !== $item->item_id)) {
+            $navItems = Table\NavigationItems::findBy(['type' => 'category']);
+            foreach ($navItems->rows() as $item) {
+                if (null !== $item->item_id) {
                     $i = \Phire\Categories\Table\Categories::findById($item->item_id);
                     if (isset($i->id)) {
                         $n = Table\NavigationItems::findById($item->id);
                         if (isset($n->id)) {
-                            $n->href = $i->uri;
+                            $n->name = $i->title;
+                            $n->href = '/category' . $i->uri;
                             $n->save();
                         }
                     }
                 }
+            }
+        }
+
+        if (($_POST) && isset($_POST['process_content']) && (count($_POST['process_content']) > 0)
+            && isset($_POST['content_process_action']) && ($_POST['content_process_action'] == -3)) {
+            foreach ($_POST['process_content'] as $id) {
+                $navItems = new Table\NavigationItems();
+                $navItems->delete(['type' => 'content', 'item_id' => $id]);
+            }
+        }
+
+        if (($_POST) && isset($_POST['rm_categories']) && (count($_POST['rm_categories']) > 0)) {
+            foreach ($_POST['rm_categories'] as $id) {
+                $navItems = new Table\NavigationItems();
+                $navItems->delete(['type' => 'category', 'item_id' => $id]);
             }
         }
     }

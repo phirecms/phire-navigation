@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * phire-navigation form configuration
+ */
 return [
     'Phire\Navigation\Form\Navigation' => [
         [

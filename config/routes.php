@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * phire-navigation routes
+ */
 return [
     APP_URI => [
         '/navigation[/]' => [

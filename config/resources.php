@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * phire-navigation resources
+ */
 return [
     'navigation' => [
         'index',

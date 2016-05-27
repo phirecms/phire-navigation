@@ -196,7 +196,7 @@ a.nav-close-link > span {
 .navigation-nav-icon:before {
     font-family: "FontAwesome";
     font-weight: normal;
-    content: "\f0c9";
+    content: "\f0e8";
     display: inline-block;
     margin: 0;
     padding: 0 5px 0 0;
@@ -215,7 +215,7 @@ a.nav-close-link > span {
 .navigation-header:before {
     font-family: "FontAwesome";
     font-weight: normal;
-    content: "\f0c9";
+    content: "\f0e8";
     margin: 0;
     padding: 0 8px 0 0;
     color: #b4b5b4;

@@ -67,7 +67,7 @@
     </form>
 <?php endif; ?>
 <div id="nav-edit">
-    <a href="#" class="nav-close-link" onclick="jax('#nav-edit').fade(0, {tween : 25, speed : 250}); return false;">close [x]</a>
+    <a href="#" class="nav-close-link" onclick="jax('#nav-edit').fade(0, {tween : 25, speed : 250}); return false;"><span>close [x]</span></a>
     <form id="navigation-manage-edit-form" action="<?=$phireUri . '/navigation/manage/' . $id; ?>" method="post">
         <div>
             <input type="text" name="nav_edit_title" id="nav_edit_title" value="" size="55" placeholder="Title" />

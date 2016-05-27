@@ -136,11 +136,25 @@ a.nav-close-link {
     width: 22px;
     height: 22px;
     float: right;
-    background-image: url(../img/x-black.png);
-    background-position: center;
-    background-repeat: no-repeat;
-    overflow: hidden;
-    text-indent: -9999px;
+    text-decoration: none;
+}
+
+a.nav-close-link:hover {
+    text-decoration: none;
+}
+
+a.nav-close-link:before {
+    font-family: "FontAwesome";
+    font-weight: normal;
+    content: "\f00d";
+    margin: 0;
+    padding: 0 5px 0 0;
+    color: #000;
+    font-size: 1.1em;
+}
+
+a.nav-close-link > span {
+    display: none;
 }
 
 #navigation-manage-edit-form {
@@ -179,18 +193,32 @@ a.nav-close-link {
     float: right;
 }
 
-.navigation-nav-icon {
-    background-image: url(../img/navigation-icon-sm.png);
-    background-position: 8px center;
-    background-repeat: no-repeat;
+.navigation-nav-icon:before {
+    font-family: "FontAwesome";
+    font-weight: normal;
+    content: "\f0c9";
+    display: inline-block;
+    margin: 0;
+    padding: 0 5px 0 0;
+    vertical-align: middle;
+    color: #b4b5b4;
+    font-size: 1.5em;
+    width: 25px;
+    text-align: center;
 }
 
 .navigation-header {
     margin: 10px 0 10px 0;
-    padding: 10px 0 10px 40px;
-    background-image: url(../img/navigation-icon-lg.png);
-    background-position: left center;
-    background-repeat: no-repeat;
+    padding: 10px 0 10px 0;
+}
+
+.navigation-header:before {
+    font-family: "FontAwesome";
+    font-weight: normal;
+    content: "\f0c9";
+    margin: 0;
+    padding: 0 8px 0 0;
+    color: #b4b5b4;
 }
 
 .nav-branch {

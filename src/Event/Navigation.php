@@ -43,7 +43,7 @@ class Navigation
     public static function updateNavigation(AbstractController $controller, Application $application)
     {
         if (($_POST) && $application->isRegistered('phire-content') && ($controller->hasView()) && (null !== $controller->view()->id) &&
-            (null !== $controller->view()->form) && ($controller->view()->form instanceof \Phire\Content\Form\Content)) {
+            (null !== $controller->view()->form) && ($controller->view()->form !== false) && ($controller->view()->form instanceof \Phire\Content\Form\Content)) {
             $navItems = Table\NavigationItems::findBy(['type' => 'content']);
             foreach ($navItems->rows() as $item) {
                 if (null !== $item->item_id) {
@@ -59,7 +59,7 @@ class Navigation
                 }
             }
         } else if (($_POST) && $application->isRegistered('phire-categories') && ($controller->hasView()) && (null !== $controller->view()->id) &&
-            (null !== $controller->view()->form) && ($controller->view()->form instanceof \Phire\Categories\Form\Category)) {
+            (null !== $controller->view()->form) && ($controller->view()->form !== false) && ($controller->view()->form instanceof \Phire\Categories\Form\Category)) {
             $navItems = Table\NavigationItems::findBy(['type' => 'category']);
             foreach ($navItems->rows() as $item) {
                 if (null !== $item->item_id) {

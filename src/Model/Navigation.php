@@ -397,11 +397,11 @@ class Navigation extends AbstractModel
     /**
      * Create navigation children
      *
-     * @param  int                $parentId
-     * @param  int                $navId
-     * @param  \ArrayObject|array $content
-     * @param  int                $depth
-     * @param  boolean            $cat
+     * @param  int     $parentId
+     * @param  int     $navId
+     * @param  mixed   $content
+     * @param  int     $depth
+     * @param  boolean $cat
      * @return void
      */
     protected function createNavChildren($parentId, $navId, $content, $depth = 0, $cat = false)
